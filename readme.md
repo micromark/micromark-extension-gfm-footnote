@@ -55,7 +55,7 @@ Text here and here and here.
 [Learn more about markdown and footnotes in markdown](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#footnotes)
 ````
 
-And our script, `example.js`, looks as follows:
+And our module, `example.js`, looks as follows:
 
 ```js
 import fs from 'node:fs'
@@ -73,20 +73,20 @@ console.log(output)
 Now, running `node example` yields:
 
 ```html
-<p>Using footnotes is fun!<sup><a href="#fn-1" id="fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> They let you reference relevant information without disrupting the flow of what you’re trying to say.<sup><a href="#fn-bignote" id="fnref-bignote" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup></p>
+<p>Using footnotes is fun!<sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> They let you reference relevant information without disrupting the flow of what you’re trying to say.<sup><a href="#user-content-fn-bignote" id="user-content-fnref-bignote" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup></p>
 <p>Text here and here and here.
 <a href="https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#footnotes">Learn more about markdown and footnotes in markdown</a></p>
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>
 <ol>
-<li id="fn-1">
-<p>This is the first footnote. <a href="#fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>
+<li id="user-content-fn-1">
+<p>This is the first footnote. <a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>
 </li>
-<li id="fn-bignote">
+<li id="user-content-fn-bignote">
 <p>Here’s one with multiple paragraphs and code.</p>
 <p>Indent paragraphs to include them in the footnote.</p>
 <pre><code>my code
 </code></pre>
-<p>Add as many paragraphs as you like. <a href="#fnref-bignote" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>
+<p>Add as many paragraphs as you like. <a href="#user-content-fnref-bignote" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>
 </li>
 </ol>
 </section>
