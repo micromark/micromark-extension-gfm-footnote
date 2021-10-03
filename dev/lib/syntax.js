@@ -133,7 +133,7 @@ function resolveToPotentialGfmFootnoteCall(events, context) {
   }
   // The `^` marker
   const marker = {
-    type: 'gfmFootnoteCall',
+    type: 'gfmFootnoteCallMarker',
     start: Object.assign({}, events[index + 3][1].end),
     end: Object.assign({}, events[index + 3][1].end)
   }
