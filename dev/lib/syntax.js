@@ -8,7 +8,7 @@
  * @typedef {import('micromark-util-types').Event} Event
  */
 
-import assert from 'power-assert'
+import {ok as assert} from 'uvu/assert'
 import {blankLine} from 'micromark-core-commonmark'
 import {factorySpace} from 'micromark-factory-space'
 import {
