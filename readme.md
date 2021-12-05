@@ -9,33 +9,74 @@
 [![Chat][chat-badge]][chat]
 
 **[micromark][]** extension to support GitHub Flavored Markdown (GFM) footnotes.
-GFM footnotes were [announced September 30, 2021][post] but are neither
-specified nor supported in all their products (e.g., Gists).
+
+## Contents
+
+*   [What is this?](#what-is-this)
+*   [When to use this](#when-to-use-this)
+*   [Install](#install)
+*   [Use](#use)
+*   [API](#api)
+    *   [`gfmFootnote()`](#gfmfootnote)
+    *   [`gfmFootnoteHtml(htmlOptions)`](#gfmfootnotehtmlhtmloptions)
+*   [Recommended CSS](#recommended-css)
+*   [Types](#types)
+*   [Compatibility](#compatibility)
+*   [Security](#security)
+*   [Related](#related)
+*   [Contribute](#contribute)
+*   [License](#license)
+
+## What is this?
+
+This package is a micromark extension to add support for GFM footnotes.
+GFM footnotes were [announced September 30, 2021][post] but are not yet
+specified.
 Their implementation on github.com is currently quite buggy.
 The bugs have been reported on
-[`cmark-gfm`](https://github.com/github/cmark-gfm).
+[`cmark-gfm`][cmark-gfm].
 This micromark extension matches github.com except for its bugs.
 
 ## When to use this
 
-You should probably use [`micromark-extension-gfm`][micromark-extension-gfm]
-instead, which combines this package with other GFM features.
-Alternatively, if you don’t want all of GFM, use this package.
+In many cases, when working with micromark, you’d want to use
+[`micromark-extension-gfm`][micromark-extension-gfm] instead, which combines
+this package with other GFM features.
+
+When working with syntax trees, you’d want to combine this package with
+[`mdast-util-gfm-footnote`][mdast-util-gfm-footnote] (or
+[`mdast-util-gfm`][mdast-util-gfm] when using `micromark-extension-gfm`).
+
+These tools are all rather low-level.
+In most cases, you’d instead want to use [`remark-gfm`][remark-gfm] with
+[remark][].
 
 ## Install
 
-This package is [ESM only](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c):
-Node 12+ is needed to use it and it must be `import`ed instead of `require`d.
-
-[npm][]:
+This package is [ESM only][esm].
+In Node.js (version 12.20+, 14.14+, or 16.0+), install with [npm][]:
 
 ```sh
 npm install micromark-extension-gfm-footnote
 ```
 
+In Deno with [Skypack][]:
+
+```js
+import {gfmFootnote, gfmFootnoteHtml} from 'https://cdn.skypack.dev/micromark-extension-gfm-footnote@1?dts'
+```
+
+In browsers with [Skypack][]:
+
+```html
+<script type="module">
+  import {gfmFootnote, gfmFootnoteHtml} from 'https://cdn.skypack.dev/micromark-extension-gfm-footnote@1?min'
+</script>
+```
+
 ## Use
 
-Say we have the following file, `example.md`:
+Say we have the following file `example.md`:
 
 ````markdown
 Using footnotes is fun![^1] They let you reference relevant information without disrupting the flow of what you’re trying to say.[^bignote]
@@ -55,7 +96,7 @@ Text here and here and here.
 [Learn more about markdown and footnotes in markdown](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#footnotes)
 ````
 
-And our module, `example.js`, looks as follows:
+And our module `example.js` looks as follows:
 
 ```js
 import fs from 'node:fs'
@@ -70,7 +111,7 @@ const output = micromark(fs.readFileSync('example.md'), {
 console.log(output)
 ```
 
-Now, running `node example` yields:
+Now running `node example.js` yields:
 
 ```html
 <p>Using footnotes is fun!<sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> They let you reference relevant information without disrupting the flow of what you’re trying to say.<sup><a href="#user-content-fn-bignote" id="user-content-fnref-bignote" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup></p>
@@ -105,11 +146,13 @@ Without this condition, production code is loaded.
 
 ### `gfmFootnote()`
 
+A function that can be called to get an extension for micromark to parse
+GFM footnotes (can be passed in `extensions`).
+
 ### `gfmFootnoteHtml(htmlOptions)`
 
-A function that can be called to get an extension for micromark to parse
-GFM footnotes (can be passed in `extensions`) and a function that can be called
-to get an extension to compile them to HTML (can be passed in `htmlExtensions`).
+A function that can be called to get an extension to compile them to HTML (can
+be passed in `htmlExtensions`).
 
 ###### `htmlOptions.clobberPrefix`
 
@@ -174,20 +217,29 @@ For the complete actual CSS see
 }
 ```
 
+## Types
+
+This package is fully typed with [TypeScript][].
+It exports additional `HtmlOptions` type that models its respective interface.
+
+## Compatibility
+
+This package is at least compatible with all maintained versions of Node.js.
+As of now, that is Node.js 12.20+, 14.14+, and 16.0+.
+It also works in Deno and modern browsers.
+
+## Security
+
+This package is safe.
+
 ## Related
 
-*   [`remarkjs/remark`][remark]
-    — markdown processor powered by plugins
-*   [`remarkjs/remark-gfm`][remark-gfm]
-    — remark plugin using this to support all of GFM
-*   [`micromark/micromark`][micromark]
-    — the smallest commonmark-compliant markdown parser that exists
 *   [`syntax-tree/mdast-util-gfm-footnote`][mdast-util-gfm-footnote]
-    — mdast utility to support GFM footnotes
-*   [`syntax-tree/mdast-util-from-markdown`][from-markdown]
-    — mdast parser using `micromark` to create mdast from markdown
-*   [`syntax-tree/mdast-util-to-markdown`][to-markdown]
-    — mdast serializer to create markdown from mdast
+    — support GFM footnotes in mdast
+*   [`syntax-tree/mdast-util-gfm`][mdast-util-gfm]
+    — support GFM in mdast
+*   [`remarkjs/remark-gfm`][remark-gfm]
+    — support GFM in remark
 
 ## Contribute
 
@@ -233,6 +285,8 @@ abide by its terms.
 
 [npm]: https://docs.npmjs.com/cli/install
 
+[skypack]: https://www.skypack.dev
+
 [license]: license
 
 [author]: https://wooorm.com
@@ -243,11 +297,11 @@ abide by its terms.
 
 [coc]: https://github.com/micromark/.github/blob/HEAD/code-of-conduct.md
 
+[esm]: https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c
+
+[typescript]: https://www.typescriptlang.org
+
 [micromark]: https://github.com/micromark/micromark
-
-[from-markdown]: https://github.com/syntax-tree/mdast-util-from-markdown
-
-[to-markdown]: https://github.com/syntax-tree/mdast-util-to-markdown
 
 [remark]: https://github.com/remarkjs/remark
 
@@ -255,6 +309,10 @@ abide by its terms.
 
 [mdast-util-gfm-footnote]: https://github.com/syntax-tree/mdast-util-gfm-footnote
 
+[mdast-util-gfm]: https://github.com/syntax-tree/mdast-util-gfm
+
 [remark-gfm]: https://github.com/remarkjs/remark-gfm
 
 [post]: https://github.blog/changelog/2021-09-30-footnotes-now-supported-in-markdown-fields/
+
+[cmark-gfm]: https://github.com/github/cmark-gfm
