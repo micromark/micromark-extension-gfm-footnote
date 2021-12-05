@@ -25,6 +25,7 @@
  *   Change it if you’re authoring in a different language.
  */
 
+import {ok as assert} from 'uvu/assert'
 import {normalizeIdentifier} from 'micromark-util-normalize-identifier'
 import {sanitizeUri} from 'micromark-util-sanitize-uri'
 
@@ -44,8 +45,8 @@ export function gfmFootnoteHtml(options = {}) {
   return {
     enter: {
       gfmFootnoteDefinition() {
-        // @ts-expect-error It’s defined.
-        this.getData('tightStack').push(false)
+        const stack = /** @type {Array<boolean>} */ (this.getData('tightStack'))
+        stack.push(false)
       },
       gfmFootnoteDefinitionLabelString() {
         this.buffer()
@@ -56,46 +57,52 @@ export function gfmFootnoteHtml(options = {}) {
     },
     exit: {
       gfmFootnoteDefinition() {
-        /** @type {Record<string, string>} */
-        // @ts-expect-error It’s fine.
-        let definitions = this.getData('gfmFootnoteDefinitions')
-        /** @type {string[]} */
-        // @ts-expect-error: It’s fine
-        const stack = this.getData('gfmFootnoteDefinitionStack')
-        /** @type {string} */
-        // @ts-expect-error: It’s fine
-        const current = stack.pop()
+        let definitions = /** @type {Record<string, string>} */ (
+          this.getData('gfmFootnoteDefinitions')
+        )
+        const footnoteStack = /** @type {Array<string>} */ (
+          this.getData('gfmFootnoteDefinitionStack')
+        )
+        const tightStack = /** @type {Array<boolean>} */ (
+          this.getData('tightStack')
+        )
+        const current = footnoteStack.pop()
         const value = this.resume()
 
-        if (!definitions)
+        assert(current, 'expected to be in a footnote')
+
+        if (!definitions) {
           this.setData('gfmFootnoteDefinitions', (definitions = {}))
+        }
+
         if (!own.call(definitions, current)) definitions[current] = value
 
-        // @ts-expect-error It’s defined.
-        this.getData('tightStack').pop()
+        tightStack.pop()
         this.setData('slurpOneLineEnding', true)
         // “Hack” to prevent a line ending from showing up if we’re in a definition in
         // an empty list item.
         this.setData('lastWasTag')
       },
       gfmFootnoteDefinitionLabelString(token) {
-        /** @type {string[]} */
-        // @ts-expect-error: It’s fine
-        let stack = this.getData('gfmFootnoteDefinitionStack')
+        let footnoteStack = /** @type {Array<string>} */ (
+          this.getData('gfmFootnoteDefinitionStack')
+        )
 
-        if (!stack) this.setData('gfmFootnoteDefinitionStack', (stack = []))
+        if (!footnoteStack) {
+          this.setData('gfmFootnoteDefinitionStack', (footnoteStack = []))
+        }
 
-        stack.push(normalizeIdentifier(this.sliceSerialize(token)))
+        footnoteStack.push(normalizeIdentifier(this.sliceSerialize(token)))
         this.resume() // Drop the label.
         this.buffer() // Get ready for a value.
       },
       gfmFootnoteCallString(token) {
-        /** @type {string[]|undefined} */
-        // @ts-expect-error It’s fine.
-        let calls = this.getData('gfmFootnoteCallOrder')
-        /** @type {Record.<string, number>|undefined} */
-        // @ts-expect-error It’s fine.
-        let counts = this.getData('gfmFootnoteCallCounts')
+        let calls = /** @type {Array<string>|undefined} */ (
+          this.getData('gfmFootnoteCallOrder')
+        )
+        let counts = /** @type {Record<string, number>|undefined} */ (
+          this.getData('gfmFootnoteCallCounts')
+        )
         const id = normalizeIdentifier(this.sliceSerialize(token))
         /** @type {number} */
         let counter
@@ -135,15 +142,15 @@ export function gfmFootnoteHtml(options = {}) {
         )
       },
       null() {
-        /** @type {string[]} */
-        // @ts-expect-error It’s fine.
-        const calls = this.getData('gfmFootnoteCallOrder') || []
-        /** @type {Record.<string, number>} */
-        // @ts-expect-error It’s fine.
-        const counts = this.getData('gfmFootnoteCallCounts') || {}
-        /** @type {Record<string, string>} */
-        // @ts-expect-error It’s fine.
-        const definitions = this.getData('gfmFootnoteDefinitions') || {}
+        const calls = /** @type {Array<string>} */ (
+          this.getData('gfmFootnoteCallOrder') || []
+        )
+        const counts = /** @type {Record<string, number>} */ (
+          this.getData('gfmFootnoteCallCounts') || {}
+        )
+        const definitions = /** @type {Record<string, string>} */ (
+          this.getData('gfmFootnoteDefinitions') || {}
+        )
         let index = -1
 
         if (calls.length > 0) {
@@ -162,7 +169,7 @@ export function gfmFootnoteHtml(options = {}) {
           const id = calls[index]
           const safeId = sanitizeUri(id.toLowerCase())
           let referenceIndex = 0
-          /** @type {string[]} */
+          /** @type {Array<string>} */
           const references = []
 
           while (++referenceIndex <= counts[id]) {

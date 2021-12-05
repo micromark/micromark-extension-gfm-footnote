@@ -50,7 +50,7 @@ export function gfmFootnote() {
 function tokenizePotentialGfmFootnoteCall(effects, ok, nok) {
   const self = this
   let index = self.events.length
-  /** @type {string[]} */
+  /** @type {Array<string>} */
   // @ts-expect-error It’s fine!
   const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = [])
   /** @type {Token} */
@@ -153,7 +153,7 @@ function resolveToPotentialGfmFootnoteCall(events, context) {
     end: Object.assign({}, string.end)
   }
 
-  /** @type {Event[]} */
+  /** @type {Array<Event>} */
   const replacement = [
     // Take the `labelImageMarker` (now `data`, the `!`)
     events[index + 1],
@@ -184,7 +184,7 @@ function resolveToPotentialGfmFootnoteCall(events, context) {
 /** @type {Tokenizer} */
 function tokenizeGfmFootnoteCall(effects, ok, nok) {
   const self = this
-  /** @type {string[]} */
+  /** @type {Array<string>} */
   // @ts-expect-error It’s fine!
   const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = [])
   let size = 0
@@ -278,7 +278,7 @@ function tokenizeGfmFootnoteCall(effects, ok, nok) {
 /** @type {Tokenizer} */
 function tokenizeDefinitionStart(effects, ok, nok) {
   const self = this
-  /** @type {string[]} */
+  /** @type {Array<string>} */
   // @ts-expect-error It’s fine!
   const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = [])
   /** @type {string} */
