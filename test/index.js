@@ -1,7 +1,9 @@
-import fs from 'fs'
-import path from 'path'
+import {URL} from 'node:url'
+import fs from 'node:fs'
+import path from 'node:path'
 import test from 'tape'
 import {micromark} from 'micromark'
+import {createGfmFixtures} from 'create-gfm-fixtures'
 import {gfmFootnote as syntax, gfmFootnoteHtml as html} from '../dev/index.js'
 
 test('markdown -> html (micromark)', (t) => {
@@ -177,46 +179,81 @@ test('markdown -> html (micromark)', (t) => {
   t.end()
 })
 
-test('fixtures', (t) => {
-  const base = path.join('test', 'fixtures')
+test('fixtures', async (t) => {
+  const base = new URL('fixtures/', import.meta.url)
+
+  await createGfmFixtures(base, {
+    rehypeStringify: {closeSelfClosing: true}
+  })
+
   const files = fs.readdirSync(base).filter((d) => /\.md$/.test(d))
   let index = -1
 
-  // To do: confirm `definitions` and `normal-blank-lines` after
-  // <https://github.com/github/cmark-gfm/issues/241>
-  //
-  // Also add `[^https://example.com]` and `[^://example.com]` to `constructs`
-  // GH currently crashes on colons in footnote identifiers.
-  //
-  // GH doesn’t allow images in what could otherwise be a footnote:
-  // `[^![image](#)]`.
-  // This differs from CommonMark.
-  // They do allow the above to form a link w/o the `!`.
-  //
-  // GH doesn’t handle footnote calls inside links well:
-  // `[link[^1]](#)`.
-  // The `<sup>` remains in the link, the `<a>` is placed outside it.
-  // This might be an acceptable edge case, as CommonMark also specifies to
-  // build incorrect HTML for `[<https://example.com>](#)`.
   while (++index < files.length) {
     const name = path.basename(files[index], '.md')
-    const input = fs.readFileSync(path.join(base, name + '.md'))
-    const actual = micromark(input, {
+    const input = fs.readFileSync(new URL(name + '.md', base))
+    let expected = String(fs.readFileSync(new URL(name + '.html', base)))
+    let actual = micromark(input, {
       extensions: [syntax()],
       htmlExtensions: [html()]
     })
-    /** @type {string|undefined} */
-    let expected
 
-    try {
-      expected = String(fs.readFileSync(path.join(base, name + '.html')))
-    } catch {}
-
-    if (expected) {
-      t.deepEqual(actual, expected, name)
-    } else {
-      fs.writeFileSync(path.join(base, name + '.html'), actual)
+    if (actual && !/\n$/.test(actual)) {
+      actual += '\n'
     }
+
+    // GH strips images that point to just a search or hash.
+    actual = actual.replace(/src="[?#][^"]*"/g, 'src=""')
+
+    // GH uses different casing for percent-encoding in IDs and hrefs.
+    // This breaks their implementation.
+    // See: <https://github.com/github/cmark-gfm/issues/239>
+    if (name === 'calls') {
+      expected = expected.replace(/%5e/g, '%5E')
+    }
+
+    if (name === 'constructs-in-identifiers') {
+      // GH does not support colons:
+      // See: <https://github.com/github/cmark-gfm/issues/250>
+      expected = expected
+        // Forward links
+        .replace(
+          /<a id="user-content-fnref-https:\/\/example\.com"/,
+          '<a href="#user-content-fn-https://example.com" id="user-content-fnref-https://example.com"'
+        )
+        .replace(
+          /<a id="user-content-fnref-:\/\/example\.com"/,
+          '<a href="#user-content-fn-://example.com" id="user-content-fnref-://example.com"'
+        )
+        // Backward links
+        .replace(
+          /<li id="user-content-fn-https:\/\/example\.com">\n<p>a ↩<\/p>\n<\/li>/,
+          '<li id="user-content-fn-https://example.com">\n<p>a <a href="#user-content-fnref-https://example.com" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>'
+        )
+        .replace(
+          /<li id="user-content-fn-:\/\/example\.com">\n<p>a ↩<\/p>\n<\/li>/,
+          '<li id="user-content-fn-://example.com">\n<p>a <a href="#user-content-fnref-://example.com" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>'
+        )
+
+      // GH doesn’t allow images in what could otherwise be a footnote:
+      // `[^![image](#)]`.
+      // This seems like a bug.
+      expected = expected.replace(
+        /!\[image]\(#\)/g,
+        '<img src="" alt="image" />'
+      )
+    }
+
+    // GH doesn’t properly support footnotes in links.
+    // See: <https://github.com/github/cmark-gfm/issues/249>
+    if (name === 'footnotes-in-constructs') {
+      expected = expected.replace(
+        /<a href="#">link<sup><\/sup><\/a><a href="#user-content-fn-5" id="user-content-fnref-5" data-footnote-ref="" aria-describedby="footnote-label">4<\/a>/,
+        '<a href="#">link<sup><a href="#user-content-fn-5" id="user-content-fnref-5" data-footnote-ref="" aria-describedby="footnote-label">4</a></sup></a>'
+      )
+    }
+
+    t.equal(actual, expected, name)
   }
 
   t.end()

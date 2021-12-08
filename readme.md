@@ -8,7 +8,8 @@
 [![Backers][backers-badge]][collective]
 [![Chat][chat-badge]][chat]
 
-**[micromark][]** extension to support GitHub Flavored Markdown (GFM) footnotes.
+**[micromark][]** extension to support GitHub flavored markdown (GFM)
+[footnotes][post].
 
 ## Contents
 
