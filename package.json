@@ -1,6 +1,6 @@
 {
   "name": "micromark-extension-gfm-footnote",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "micromark extension to support GFM footnotes",
   "license": "MIT",
   "keywords": [
