@@ -61,17 +61,17 @@ In Node.js (version 12.20+, 14.14+, or 16.0+), install with [npm][]:
 npm install micromark-extension-gfm-footnote
 ```
 
-In Deno with [Skypack][]:
+In Deno with [`esm.sh`][esmsh]:
 
 ```js
-import {gfmFootnote, gfmFootnoteHtml} from 'https://cdn.skypack.dev/micromark-extension-gfm-footnote@1?dts'
+import {gfmFootnote, gfmFootnoteHtml} from 'https://esm.sh/micromark-extension-gfm-footnote@1'
 ```
 
-In browsers with [Skypack][]:
+In browsers with [`esm.sh`][esmsh]:
 
 ```html
 <script type="module">
-  import {gfmFootnote, gfmFootnoteHtml} from 'https://cdn.skypack.dev/micromark-extension-gfm-footnote@1?min'
+  import {gfmFootnote, gfmFootnoteHtml} from 'https://esm.sh/micromark-extension-gfm-footnote@1?bundle'
 </script>
 ```
 
@@ -286,7 +286,7 @@ abide by its terms.
 
 [npm]: https://docs.npmjs.com/cli/install
 
-[skypack]: https://www.skypack.dev
+[esmsh]: https://esm.sh
 
 [license]: license
 
