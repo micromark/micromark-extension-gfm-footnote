@@ -178,7 +178,7 @@ DOM clobbering is this:
 ```
 
 Elements by their ID are made available in browsers on the `window` object.
-Using a prefix this that from being a problem.
+Using a prefix prevents this from being a problem
 
 ###### `htmlOptions.label`
 
