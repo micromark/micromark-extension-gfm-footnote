@@ -80,10 +80,8 @@
   "xo": {
     "prettier": true,
     "rules": {
-      "unicorn/prefer-code-point": "off",
       "n/file-extension-in-import": "off",
-      "unicorn/no-this-assignment": "off",
-      "unicorn/prefer-node-protocol": "off"
+      "unicorn/no-this-assignment": "off"
     }
   },
   "remarkConfig": {

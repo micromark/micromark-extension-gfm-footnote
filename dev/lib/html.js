@@ -1,16 +1,16 @@
 /**
  * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
- * @typedef {import('micromark-util-types').CompileContext} CompileContext
  *
  * @typedef Options
+ *   Configuration (optional).
  * @property {string} [clobberPrefix='user-content-']
  *   Prefix to use before the `id` attribute to prevent it from *clobbering*.
- *   attributes.
  *   DOM clobbering is this:
  *
  *   ```html
  *   <p id=x></p>
- *   <script>alert(x)</script>
+ *   <script>console.log(x)</script>
+ *   <!-- The element is printed to the console. -->
  *   ```
  *
  *   Elements by their ID are made available in browsers on the `window` object.
@@ -32,8 +32,13 @@ import {sanitizeUri} from 'micromark-util-sanitize-uri'
 const own = {}.hasOwnProperty
 
 /**
+ * Function that can be called to get an HTML extension for micromark (passed
+ * in `htmlExtensions`).
+ *
  * @param {Options} [options={}]
+ *   Configuration (optional).
  * @returns {HtmlExtension}
+ *   HTML extension for micromark (passed in `htmlExtensions`).
  */
 export function gfmFootnoteHtml(options = {}) {
   const label = options.label || 'Footnotes'

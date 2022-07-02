@@ -23,7 +23,11 @@ import {types} from 'micromark-util-symbol/types.js'
 const indent = {tokenize: tokenizeIndent, partial: true}
 
 /**
+ * Function that can be called (no options yet) to get a syntax extension for
+ * micromark (passed in `extensions`).
+ *
  * @returns {Extension}
+ *   Syntax extension for micromark (passed in `extensions`).
  */
 export function gfmFootnote() {
   /** @type {Extension} */
@@ -91,7 +95,7 @@ function tokenizePotentialGfmFootnoteCall(effects, ok, nok) {
       self.sliceSerialize({start: labelStart.end, end: self.now()})
     )
 
-    if (id.charCodeAt(0) !== codes.caret || !defined.includes(id.slice(1))) {
+    if (id.codePointAt(0) !== codes.caret || !defined.includes(id.slice(1))) {
       return nok(code)
     }
 
