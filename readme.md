@@ -108,11 +108,11 @@ Text here and here and here.
 …and our module `example.js` looks as follows:
 
 ```js
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import {micromark} from 'micromark'
 import {gfmFootnote, gfmFootnoteHtml} from 'micromark-extension-gfm-footnote'
 
-const output = micromark(fs.readFileSync('example.md'), {
+const output = micromark(await fs.readFile('example.md'), {
   extensions: [gfmFootnote()],
   htmlExtensions: [gfmFootnoteHtml()]
 })
