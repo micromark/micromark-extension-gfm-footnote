@@ -32,7 +32,7 @@
 
 ## What is this?
 
-This package contains extensions that add support for the footnote enabled by
+This package contains extensions that add support for footnotes enabled by
 GFM to [`micromark`][micromark].
 
 GitHub announced footnotes [on September 30, 2021][post] but did not specify
