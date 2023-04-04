@@ -2,6 +2,7 @@
  * @typedef {import('micromark-util-types').Extension} Extension
  * @typedef {import('micromark-util-types').Resolver} Resolver
  * @typedef {import('micromark-util-types').Token} Token
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
  * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
  * @typedef {import('micromark-util-types').Exiter} Exiter
  * @typedef {import('micromark-util-types').State} State
@@ -50,7 +51,10 @@ export function gfmFootnote() {
   }
 }
 
-/** @type {Tokenizer} */
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
 function tokenizePotentialGfmFootnoteCall(effects, ok, nok) {
   const self = this
   let index = self.events.length
@@ -185,7 +189,10 @@ function resolveToPotentialGfmFootnoteCall(events, context) {
   return events
 }
 
-/** @type {Tokenizer} */
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
 function tokenizeGfmFootnoteCall(effects, ok, nok) {
   const self = this
   /** @type {Array<string>} */
@@ -279,7 +286,10 @@ function tokenizeGfmFootnoteCall(effects, ok, nok) {
   }
 }
 
-/** @type {Tokenizer} */
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
 function tokenizeDefinitionStart(effects, ok, nok) {
   const self = this
   /** @type {Array<string>} */
@@ -418,7 +428,10 @@ function tokenizeDefinitionStart(effects, ok, nok) {
   }
 }
 
-/** @type {Tokenizer} */
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
 function tokenizeDefinitionContinuation(effects, ok, nok) {
   // Either a blank line, which is okay, or an indented thing.
   return effects.check(blankLine, ok, effects.attempt(indent, ok, nok))
@@ -429,7 +442,10 @@ function gfmFootnoteDefinitionEnd(effects) {
   effects.exit('gfmFootnoteDefinition')
 }
 
-/** @type {Tokenizer} */
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
 function tokenizeIndent(effects, ok, nok) {
   const self = this
 
