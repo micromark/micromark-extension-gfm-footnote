@@ -193,7 +193,6 @@ test('fixtures', async () => {
 
   const files = await fs.readdir(base)
   const extension = '.md'
-  // .filter((d) => /\.md$/.test(d))
   let index = -1
 
   while (++index < files.length) {

@@ -23,6 +23,12 @@ import {types} from 'micromark-util-symbol/types.js'
 
 const indent = {tokenize: tokenizeIndent, partial: true}
 
+// To do: micromark should support a `_hiddenGfmFootnoteSupport`, which only
+// affects label start (image).
+// That will let us drop `tokenizePotentialGfmFootnote*`.
+// It currently has a `_hiddenFootnoteSupport`, which affects that and more.
+// That can be removed when `micromark-extension-footnote` is archived.
+
 /**
  * Create an extension for `micromark` to enable GFM footnote syntax.
  *
@@ -51,6 +57,7 @@ export function gfmFootnote() {
   }
 }
 
+// To do: remove after micromark update.
 /**
  * @this {TokenizeContext}
  * @type {Tokenizer}
@@ -87,7 +94,9 @@ function tokenizePotentialGfmFootnoteCall(effects, ok, nok) {
 
   return start
 
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function start(code) {
     assert(code === codes.rightSquareBracket, 'expected `]`')
 
@@ -110,6 +119,7 @@ function tokenizePotentialGfmFootnoteCall(effects, ok, nok) {
   }
 }
 
+// To do: remove after micromark update.
 /** @type {Resolver} */
 function resolveToPotentialGfmFootnoteCall(events, context) {
   let index = events.length
@@ -202,9 +212,23 @@ function tokenizeGfmFootnoteCall(effects, ok, nok) {
   /** @type {boolean} */
   let data
 
+  // Note: the implementation of `markdown-rs` is different, because it houses
+  // core *and* extensions in one project.
+  // Therefore, it can include footnote logic inside `label-end`.
+  // We can’t do that, but luckily, we can parse footnotes in a simpler way than
+  // needed for labels.
   return start
 
-  /** @type {State} */
+  /**
+   * Start of footnote label.
+   *
+   * ```markdown
+   * > | a [^b] c
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
   function start(code) {
     assert(code === codes.leftSquareBracket, 'expected `[`')
     effects.enter('gfmFootnoteCall')
@@ -214,7 +238,16 @@ function tokenizeGfmFootnoteCall(effects, ok, nok) {
     return callStart
   }
 
-  /** @type {State} */
+  /**
+   * After `[`, at `^`.
+   *
+   * ```markdown
+   * > | a [^b] c
+   *        ^
+   * ```
+   *
+   * @type {State}
+   */
   function callStart(code) {
     if (code !== codes.caret) return nok(code)
 
@@ -226,11 +259,17 @@ function tokenizeGfmFootnoteCall(effects, ok, nok) {
     return callData
   }
 
-  /** @type {State} */
+  /**
+   * In label.
+   *
+   * ```markdown
+   * > | a [^b] c
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */
   function callData(code) {
-    /** @type {Token} */
-    let token
-
     if (
       code === codes.eof ||
       code === codes.leftSquareBracket ||
@@ -245,22 +284,37 @@ function tokenizeGfmFootnoteCall(effects, ok, nok) {
       }
 
       effects.exit('chunkString')
-      token = effects.exit('gfmFootnoteCallString')
-      return defined.includes(normalizeIdentifier(self.sliceSerialize(token)))
-        ? end(code)
-        : nok(code)
-    }
+      const token = effects.exit('gfmFootnoteCallString')
 
-    effects.consume(code)
+      if (!defined.includes(normalizeIdentifier(self.sliceSerialize(token)))) {
+        return nok(code)
+      }
+
+      effects.enter('gfmFootnoteCallLabelMarker')
+      effects.consume(code)
+      effects.exit('gfmFootnoteCallLabelMarker')
+      effects.exit('gfmFootnoteCall')
+      return ok
+    }
 
     if (!markdownLineEndingOrSpace(code)) {
       data = true
     }
 
+    effects.consume(code)
     return code === codes.backslash ? callEscape : callData
   }
 
-  /** @type {State} */
+  /**
+   * On character after escape.
+   *
+   * ```markdown
+   * > | a [^b\c] d
+   *           ^
+   * ```
+   *
+   * @type {State}
+   */
   function callEscape(code) {
     if (
       code === codes.leftSquareBracket ||
@@ -273,16 +327,6 @@ function tokenizeGfmFootnoteCall(effects, ok, nok) {
     }
 
     return callData(code)
-  }
-
-  /** @type {State} */
-  function end(code) {
-    assert(code === codes.rightSquareBracket, 'expected `]`')
-    effects.enter('gfmFootnoteCallLabelMarker')
-    effects.consume(code)
-    effects.exit('gfmFootnoteCallLabelMarker')
-    effects.exit('gfmFootnoteCall')
-    return ok
   }
 }
 
@@ -303,7 +347,16 @@ function tokenizeDefinitionStart(effects, ok, nok) {
 
   return start
 
-  /** @type {State} */
+  /**
+   * Start of GFM footnote definition.
+   *
+   * ```markdown
+   * > | [^a]: b
+   *     ^
+   * ```
+   *
+   * @type {State}
+   */
   function start(code) {
     assert(code === codes.leftSquareBracket, 'expected `[`')
     effects.enter('gfmFootnoteDefinition')._container = true
@@ -311,41 +364,61 @@ function tokenizeDefinitionStart(effects, ok, nok) {
     effects.enter('gfmFootnoteDefinitionLabelMarker')
     effects.consume(code)
     effects.exit('gfmFootnoteDefinitionLabelMarker')
-    return labelStart
+    return labelAtMarker
   }
 
-  /** @type {State} */
-  function labelStart(code) {
+  /**
+   * In label, at caret.
+   *
+   * ```markdown
+   * > | [^a]: b
+   *      ^
+   * ```
+   *
+   * @type {State}
+   */
+  function labelAtMarker(code) {
     if (code === codes.caret) {
       effects.enter('gfmFootnoteDefinitionMarker')
       effects.consume(code)
       effects.exit('gfmFootnoteDefinitionMarker')
       effects.enter('gfmFootnoteDefinitionLabelString')
-      return atBreak
+      return labelInside
     }
 
     return nok(code)
   }
 
-  /** @type {State} */
-  function atBreak(code) {
-    /** @type {Token} */
-    let token
-
+  /**
+   * In label.
+   *
+   * > 👉 **Note**: `cmark-gfm` prevents whitespace from occurring in footnote
+   * > definition labels.
+   *
+   * ```markdown
+   * > | [^a]: b
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
+  function labelInside(code) {
     if (
+      // Too long.
+      size > constants.linkReferenceSizeMax ||
+      // Space or tab is not supported by GFM for some reason.
+      // `\n` and `[` make not being supported makes sense.
+      // To do: disallow `[\t\n\r ]` to match GH and `markdown-rs`.
       code === codes.eof ||
       code === codes.leftSquareBracket ||
-      size > constants.linkReferenceSizeMax
+      // Closing brace with nothing.
+      (code === codes.rightSquareBracket && !data)
     ) {
       return nok(code)
     }
 
     if (code === codes.rightSquareBracket) {
-      if (!data) {
-        return nok(code)
-      }
-
-      token = effects.exit('gfmFootnoteDefinitionLabelString')
+      const token = effects.exit('gfmFootnoteDefinitionLabelString')
       identifier = normalizeIdentifier(self.sliceSerialize(token))
       effects.enter('gfmFootnoteDefinitionLabelMarker')
       effects.consume(code)
@@ -354,20 +427,24 @@ function tokenizeDefinitionStart(effects, ok, nok) {
       return labelAfter
     }
 
+    // To do: remove support for line endings.
     if (markdownLineEnding(code)) {
       effects.enter('lineEnding')
       effects.consume(code)
       effects.exit('lineEnding')
       size++
-      return atBreak
+      return labelInside
     }
 
     effects.enter('chunkString').contentType = 'string'
-    return label(code)
+    return labelText(code)
   }
 
-  /** @type {State} */
-  function label(code) {
+  // To do: inline with above when line endings are removed.
+  /**
+   * @type {State}
+   */
+  function labelText(code) {
     if (
       code === codes.eof ||
       markdownLineEnding(code) ||
@@ -376,7 +453,7 @@ function tokenizeDefinitionStart(effects, ok, nok) {
       size > constants.linkReferenceSizeMax
     ) {
       effects.exit('chunkString')
-      return atBreak(code)
+      return labelInside(code)
     }
 
     if (!markdownLineEndingOrSpace(code)) {
@@ -385,10 +462,22 @@ function tokenizeDefinitionStart(effects, ok, nok) {
 
     size++
     effects.consume(code)
-    return code === codes.backslash ? labelEscape : label
+    return code === codes.backslash ? labelEscape : labelText
   }
 
-  /** @type {State} */
+  /**
+   * After `\`, at a special character.
+   *
+   * > 👉 **Note**: `cmark-gfm` currently does not support escaped brackets:
+   * > <https://github.com/github/cmark-gfm/issues/240>
+   *
+   * ```markdown
+   * > | [^a\*b]: c
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */
   function labelEscape(code) {
     if (
       code === codes.leftSquareBracket ||
@@ -397,33 +486,57 @@ function tokenizeDefinitionStart(effects, ok, nok) {
     ) {
       effects.consume(code)
       size++
-      return label
+      return labelText
     }
 
-    return label(code)
+    return labelText(code)
   }
 
-  /** @type {State} */
+  /**
+   * After definition label.
+   *
+   * ```markdown
+   * > | [^a]: b
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */
   function labelAfter(code) {
     if (code === codes.colon) {
       effects.enter('definitionMarker')
       effects.consume(code)
       effects.exit('definitionMarker')
+
+      if (!defined.includes(identifier)) {
+        defined.push(identifier)
+      }
+
       // Any whitespace after the marker is eaten, forming indented code
       // is not possible.
       // No space is also fine, just like a block quote marker.
-      return factorySpace(effects, done, 'gfmFootnoteDefinitionWhitespace')
+      return factorySpace(
+        effects,
+        whitespaceAfter,
+        'gfmFootnoteDefinitionWhitespace'
+      )
     }
 
     return nok(code)
   }
 
-  /** @type {State} */
-  function done(code) {
-    if (!defined.includes(identifier)) {
-      defined.push(identifier)
-    }
-
+  /**
+   * After definition prefix.
+   *
+   * ```markdown
+   * > | [^a]: b
+   *           ^
+   * ```
+   *
+   * @type {State}
+   */
+  function whitespaceAfter(code) {
+    // `markdown-rs` has a wrapping token for the prefix that is closed here.
     return ok(code)
   }
 }
@@ -433,7 +546,20 @@ function tokenizeDefinitionStart(effects, ok, nok) {
  * @type {Tokenizer}
  */
 function tokenizeDefinitionContinuation(effects, ok, nok) {
+  /// Start of footnote definition continuation.
+  ///
+  /// ```markdown
+  ///   | [^a]: b
+  /// > |     c
+  ///     ^
+  /// ```
+  //
   // Either a blank line, which is okay, or an indented thing.
+  //
+  // To do: check blank lines in fenced code for example, if there are blank
+  // lines with a bunch of spaces, only a part of them should be “eaten” as
+  // the indent.
+  // That’s what `markdown-rs` does.
   return effects.check(blankLine, ok, effects.attempt(indent, ok, nok))
 }
 
@@ -456,7 +582,9 @@ function tokenizeIndent(effects, ok, nok) {
     constants.tabSize + 1
   )
 
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function afterPrefix(code) {
     const tail = self.events[self.events.length - 1]
     return tail &&
