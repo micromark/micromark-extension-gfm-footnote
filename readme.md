@@ -44,7 +44,7 @@ GitHub employs several other features (such as mentions or frontmatter) that
 are either not in their parser, or not in all places where GFM features work,
 which should not be considered GFM.
 
-The implementation of footnotes on github.com is currently a bit buggy.
+The implementation of footnotes on github.com is currently buggy.
 The bugs have been reported on [`cmark-gfm`][cmark-gfm].
 This micromark extension matches github.com except for its bugs.
 
@@ -54,13 +54,13 @@ This project is useful when you want to support footnotes in markdown.
 
 You can use these extensions when you are working with [`micromark`][micromark].
 To support all GFM features, use
-[`micromark-extension-gfm`][micromark-extension-gfm].
+[`micromark-extension-gfm`][micromark-extension-gfm] instead.
 
-When you need a syntax tree, you can combine this package with
+When you need a syntax tree, combine this package with
 [`mdast-util-gfm-footnote`][mdast-util-gfm-footnote].
 
-All these packages are used [`remark-gfm`][remark-gfm], which focusses on making
-it easier to transform content by abstracting these internals away.
+All these packages are used in [`remark-gfm`][remark-gfm], which focusses on
+making it easier to transform content by abstracting these internals away.
 
 ## Install
 
@@ -215,7 +215,7 @@ Textual label to use for the footnotes section (`string`, default:
 Change it when the markdown is not in English.
 
 This label is typically hidden visually (assuming a `sr-only` CSS class
-is defined that does that), and thus affects screen readers only.
+is defined that does that) and thus affects screen readers only.
 
 ###### `backLabel`
 
@@ -230,8 +230,8 @@ It affects users of assistive technology.
 
 ## Authoring
 
-When authoring markdown with footnotes, it’s recommended to use words instead
-of numbers (or letters or anything with an order) as calls.
+When authoring markdown with footnotes it’s recommended to use words instead
+of numbers (or letters or anything with an order) as identifiers.
 That makes it easier to reuse and reorder footnotes.
 
 It’s recommended to place footnotes definitions at the bottom of the document.
@@ -239,16 +239,16 @@ It’s recommended to place footnotes definitions at the bottom of the document.
 ## HTML
 
 GFM footnotes do not, on their own, relate to anything in HTML.
-When a footnote label matches with a definition, they each relate to several
+When a footnote reference matches with a definition, they each relate to several
 elements in HTML.
 
-The label relates to `<sup>` and `<a>` elements in HTML:
+The reference relates to `<sup>` and `<a>` elements in HTML:
 
 ```html
 <sup><a href="#user-content-fn-x" id="user-content-fnref-x" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>
 ```
 
-…where `x` is the identifier used in the markdown source, and `1` the number of
+…where `x` is the identifier used in the markdown source and `1` the number of
 corresponding, listed, definition.
 
 See [*§ 4.5.19 The `sub` and `sup` elements*][html-sup],
@@ -259,8 +259,8 @@ in the HTML spec, and
 [*§ 6.8 `aria-describedby` property*][aria-describedby]
 in WAI-ARIA, for more info.
 
-When one or more definitions are called, a footnote section is generated at the
-end of the document, using `<section>`, `<h2>`, and `<ol>` elements:
+When one or more definitions are referenced, a footnote section is generated at
+the end of the document, using `<section>`, `<h2>`, and `<ol>` elements:
 
 ```html
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>
@@ -268,8 +268,8 @@ end of the document, using `<section>`, `<h2>`, and `<ol>` elements:
 </section>
 ```
 
-Each definition is generated as a `<li>` in the `<ol>`, in the order they were
-first called:
+Each definition is generated as a `<li>` in the `<ol>` in the order they were
+first referenced:
 
 ```html
 <li id="user-content-fn-1">…</li>
@@ -277,7 +277,7 @@ first called:
 
 Backreferences are injected at the end of the first paragraph, or, when there
 is no paragraph, at the end of the definition.
-When a definition is called multiple times, multiple backreferences are
+When a definition is referenced multiple times, multiple backreferences are
 generated.
 Further backreferences use an extra counter in the `href` attribute and
 visually in a `<span>` after `↩`.
@@ -325,7 +325,7 @@ For the complete actual CSS see
   border: 0;
 }
 
-/* Place `[` and `]` around footnote calls. */
+/* Place `[` and `]` around footnote references. */
 [data-footnote-ref]::before {
   content: '[';
 }
@@ -375,7 +375,7 @@ The identifiers in the `label` parts are interpreted as the
 [string][micromark-content-types] content type.
 That means that character escapes and character references are allowed.
 
-Definitions match to calls through identifiers.
+Definitions match to references through identifiers.
 To match, both labels must be equal after normalizing with
 [`normalizeIdentifier`][micromark-normalize-identifier].
 One definition can match to multiple calls.
@@ -393,7 +393,7 @@ To illustrate, the definition with the content of `x` wins:
 Importantly, while labels *can* include [string][micromark-content-types]
 content (character escapes and character references), these are not considered
 when matching.
-To illustrate, neither definition matches the call:
+To illustrate, neither definition matches the reference:
 
 ```markdown
 [^a&amp;b]: x
@@ -403,8 +403,8 @@ To illustrate, neither definition matches the call:
 ```
 
 Because footnote definitions are containers (like block quotes and list items),
-they can contain more footnote definitions, and they can include calls to
-themselves.
+they can contain more footnote definitions.
+They can even include references to themselves.
 
 ## Types
 
@@ -423,7 +423,7 @@ These extensions work with `micromark` version 3+.
 ## Security
 
 This package is safe.
-Setting `htmlOptions.clobberPrefix = ''` is dangerous.
+Setting `clobberPrefix = ''` is dangerous.
 
 ## Related
 
