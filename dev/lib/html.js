@@ -34,7 +34,22 @@
  *   Change it when the markdown is not in English.
  *
  *   This label is typically hidden visually (assuming a `sr-only` CSS class
- *   is defined that does that), and thus affects screen readers only.
+ *   is defined that does that) and so affects screen readers only.
+ *   If you do have such a class, but want to show this section to everyone,
+ *   pass different attributes with the `labelAttributes` option.
+ * @property {string} [labelAttributes='class="sr-only"']
+ *   Attributes to use on the footnote label.
+ *
+ *   Change it to show the label and add other attributes.
+ *
+ *   This label is typically hidden visually (assuming an `sr-only` CSS class
+ *   is defined that does that) and so affects screen readers only.
+ *   If you do have such a class, but want to show this section to everyone,
+ *   pass an empty string.
+ *   You can also add different attributes.
+ *
+ *   > 👉 **Note**: `id="footnote-label"` is always added, because footnote
+ *   > calls use it with `aria-describedby` to provide an accessible label.
  * @property {string} [labelTagName='h2']
  *   HTML tag name to use for the footnote label element.
  *
@@ -43,8 +58,7 @@
  *   This label is typically hidden visually (assuming a `sr-only` CSS class
  *   is defined that does that) and so affects screen readers only.
  *   If you do have such a class, but want to show this section to everyone,
- *   pass different attributes with the `gfm_footnote_label_attributes`
- *   option.
+ *   pass different attributes with the `labelAttributes` option.
  * @property {string} [backLabel='Back to content']
  *   Textual label to describe the backreference back to footnote calls.
  *
@@ -79,9 +93,13 @@ export function gfmFootnoteHtml(options) {
   const config = options || emptyOptions
   const label = config.label || 'Footnotes'
   const labelTagName = config.labelTagName || 'h2'
+  const labelAttributes =
+    config.labelAttributes === null || config.labelAttributes === undefined
+      ? 'class="sr-only"'
+      : config.labelAttributes
   const backLabel = config.backLabel || 'Back to content'
   const clobberPrefix =
-    config.clobberPrefix === undefined || config.clobberPrefix === null
+    config.clobberPrefix === null || config.clobberPrefix === undefined
       ? 'user-content-'
       : config.clobberPrefix
   return {
@@ -200,7 +218,9 @@ export function gfmFootnoteHtml(options) {
           this.tag(
             '<section data-footnotes="" class="footnotes"><' +
               labelTagName +
-              ' id="footnote-label" class="sr-only">'
+              ' id="footnote-label"' +
+              (labelAttributes ? ' ' + labelAttributes : '') +
+              '>'
           )
           this.raw(this.encode(label))
           this.tag('</' + labelTagName + '>')

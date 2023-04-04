@@ -215,7 +215,23 @@ Textual label to use for the footnotes section (`string`, default:
 Change it when the markdown is not in English.
 
 This label is typically hidden visually (assuming a `sr-only` CSS class
-is defined that does that) and thus affects screen readers only.
+is defined that does that) and so affects screen readers only.
+
+###### `labelAttributes`
+
+Attributes to use on the footnote label (`string`, default:
+`'class="sr-only"'`).
+
+Change it to show the label and add other attributes.
+
+This label is typically hidden visually (assuming an `sr-only` CSS class
+is defined that does that) and so affects screen readers only.
+If you do have such a class, but want to show this section to everyone,
+pass an empty string.
+You can also add different attributes.
+
+> 👉 **Note**: `id="footnote-label"` is always added, because footnote
+> calls use it with `aria-describedby` to provide an accessible label.
 
 ###### `labelTagName`
 
@@ -433,7 +449,9 @@ These extensions work with `micromark` version 3+.
 ## Security
 
 This package is safe.
-Setting `clobberPrefix = ''` is dangerous.
+Setting `clobberPrefix = ''` is dangerous, it opens you up to DOM clobbering.
+The `labelTagName` and `labelAttributes` options are unsafe when used with user
+content, they allow defining arbitrary HTML.
 
 ## Related
 
