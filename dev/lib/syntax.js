@@ -270,6 +270,7 @@ function tokenizeGfmFootnoteCall(effects, ok, nok) {
    * @type {State}
    */
   function callData(code) {
+    // To do: remove support for line endings.
     if (
       code === codes.eof ||
       code === codes.leftSquareBracket ||

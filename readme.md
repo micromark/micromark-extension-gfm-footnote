@@ -8,7 +8,7 @@
 [![Backers][backers-badge]][collective]
 [![Chat][chat-badge]][chat]
 
-[micromark][] extension to support GFM [footnotes][post].
+[micromark][] extensions to support GFM [footnotes][post].
 
 ## Contents
 
@@ -18,7 +18,8 @@
 *   [Use](#use)
 *   [API](#api)
     *   [`gfmFootnote()`](#gfmfootnote)
-    *   [`gfmFootnoteHtml(htmlOptions)`](#gfmfootnotehtmlhtmloptions)
+    *   [`gfmFootnoteHtml(options?)`](#gfmfootnotehtmloptions)
+    *   [`HtmlOptions`](#htmloptions)
 *   [Authoring](#authoring)
 *   [HTML](#html)
 *   [CSS](#css)
@@ -32,7 +33,7 @@
 
 ## What is this?
 
-This package contains extensions that add support for footnotes enabled by
+This package contains extensions that add support for footnotes as enabled by
 GFM to [`micromark`][micromark].
 
 GitHub announced footnotes [on September 30, 2021][post] but did not specify
@@ -49,21 +50,22 @@ This micromark extension matches github.com except for its bugs.
 
 ## When to use this
 
-These tools are all low-level.
-In many cases, you want to use [`remark-gfm`][plugin] with remark instead.
+This project is useful when you want to support footnotes in markdown.
 
-Even when you want to use `micromark`, you likely want to use
-[`micromark-extension-gfm`][micromark-extension-gfm] to support all GFM
-features.
-That extension includes this extension.
+You can use these extensions when you are working with [`micromark`][micromark].
+To support all GFM features, use
+[`micromark-extension-gfm`][micromark-extension-gfm].
 
-When working with `mdast-util-from-markdown`, you must combine this package with
-[`mdast-util-gfm-footnote`][util].
+When you need a syntax tree, you can combine this package with
+[`mdast-util-gfm-footnote`][mdast-util-gfm-footnote].
+
+All these packages are used [`remark-gfm`][remark-gfm], which focusses on making
+it easier to transform content by abstracting these internals away.
 
 ## Install
 
 This package is [ESM only][esm].
-In Node.js (version 12.20+, 14.14+, 16.0+, or 18.0+), install with [npm][]:
+In Node.js (version 14.14+), install with [npm][]:
 
 ```sh
 npm install micromark-extension-gfm-footnote
@@ -144,117 +146,156 @@ console.log(output)
 
 ## API
 
-This package exports the identifiers `gfmFootnote` and `gfmFootnoteHtml`.
+This package exports the identifiers [`gfmFootnote`][api-gfm-footnote] and
+[`gfmFootnoteHtml`][api-gfm-footnote-html].
 There is no default export.
 
-The export map supports the endorsed [`development` condition][condition].
+The export map supports the [`development` condition][development].
 Run `node --conditions development module.js` to get instrumented dev code.
 Without this condition, production code is loaded.
 
 ### `gfmFootnote()`
 
-Function that can be called (no options yet) to get a syntax extension for
-micromark (passed in `extensions`).
+Create an extension for `micromark` to enable GFM footnote syntax.
 
-### `gfmFootnoteHtml(htmlOptions)`
+###### Returns
 
-Function that can be called to get an HTML extension for micromark (passed
-in `htmlExtensions`).
+Extension for `micromark` that can be passed in `extensions` to enable GFM
+footnote syntax ([`Extension`][micromark-extension]).
 
-###### `htmlOptions`
+### `gfmFootnoteHtml(options?)`
 
-Configuration (optional).
+Create an extension for `micromark` to support GFM footnotes when serializing
+to HTML.
 
-###### `htmlOptions.clobberPrefix`
+###### Parameters
 
-Prefix to use before the `id` attribute to prevent it from *clobbering*
-(`string`, default: `'user-content-'`).
+*   `options` ([`HtmlOptions`][api-html-options], optional)
+    — configuration
+
+###### Returns
+
+Extension for `micromark` that can be passed in `htmlExtensions` to support GFM
+footnotes when serializing to HTML
+([`HtmlExtension`][micromark-html-extension]).
+
+### `HtmlOptions`
+
+Configuration (TypeScript type).
+
+##### Fields
+
+###### `clobberPrefix`
+
+Prefix to use before the `id` attribute on footnotes to prevent them from
+*clobbering* (`string`, default: `'user-content-'`).
+
+Pass `''` for trusted markdown and when you are careful with polyfilling.
+You could pass a different prefix.
+
 DOM clobbering is this:
 
 ```html
-<p id=x></p>
-<script>console.log(x)</script>
-<!-- The element is printed to the console. -->
+<p id="x"></p>
+<script>alert(x) // `x` now refers to the `p#x` DOM element</script>
 ```
 
-Elements by their ID are made available in browsers on the `window` object.
-Using a prefix prevents this from being a problem
+The above example shows that elements are made available by browsers, by their
+ID, on the `window` object.
+This is a security risk because you might be expecting some other variable at
+that place.
+It can also break polyfills.
+Using a prefix solves these problems.
 
-###### `htmlOptions.label`
+###### `label`
 
-Label to use for the footnotes section (`string`, default: `'Footnotes'`).
-Affects screen reader users.
-Change it if you’re authoring in a different language.
+Textual label to use for the footnotes section (`string`, default:
+`'Footnotes'`).
 
-###### `htmlOptions.backLabel`
+Change it when the markdown is not in English.
 
-Label to use from backreferences back to their footnote call (`string`, default:
-`'Back to content'`).
-Affects screen reader users.
-Change it if you’re authoring in a different language.
+This label is typically hidden visually (assuming a `sr-only` CSS class
+is defined that does that), and thus affects screen readers only.
+
+###### `backLabel`
+
+Textual label to describe the backreference back to footnote calls (`string`,
+default: `'Back to content'`).
+
+Change it when the markdown is not in English.
+
+This label is used in the [`aria-label`][aria-label] attribute on each
+backreference (the `↩` links).
+It affects users of assistive technology.
 
 ## Authoring
 
 When authoring markdown with footnotes, it’s recommended to use words instead
-of numbers (or letters or anything with an order) as references.
+of numbers (or letters or anything with an order) as calls.
 That makes it easier to reuse and reorder footnotes.
 
 It’s recommended to place footnotes definitions at the bottom of the document.
 
 ## HTML
 
-GFM footnotes relate to several HTML elements and ARIA properties.
-The structure for generated references looks as follows:
+GFM footnotes do not, on their own, relate to anything in HTML.
+When a footnote label matches with a definition, they each relate to several
+elements in HTML.
+
+The label relates to `<sup>` and `<a>` elements in HTML:
 
 ```html
-<sup><a href="#user-content-fn-xxx" id="user-content-fnref-xxx" data-footnote-ref="" aria-describedby="footnote-label">111</a></sup></p>
+<sup><a href="#user-content-fn-x" id="user-content-fnref-x" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>
 ```
 
-Where `xxx` is the identifier used in the markdown source, and `111` the number
-of corresponding, listed, definition.
+…where `x` is the identifier used in the markdown source, and `1` the number of
+corresponding, listed, definition.
 
 See [*§ 4.5.19 The `sub` and `sup` elements*][html-sup],
 [*§ 4.5.1 The `a` element*][html-a], and
 [*§ 3.2.6.6 Embedding custom non-visible data with the `data-*`
 attributes*][html-data]
 in the HTML spec, and
-[*§ 6.7 `aria-describedby` property*][aria-describedby]
+[*§ 6.8 `aria-describedby` property*][aria-describedby]
 in WAI-ARIA, for more info.
 
-The structure for the section at the end of the document that contains
-generated definitions looks as follows:
+When one or more definitions are called, a footnote section is generated at the
+end of the document, using `<section>`, `<h2>`, and `<ol>` elements:
 
 ```html
 <section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>
-<ol>
-<!--…-->
-</ol>
+<ol>…</ol>
 </section>
 ```
 
-See [*§ 4.3.3 The `section` element*][html-section],
-[*§ 4.3.6 The `h1`, `h2`, `h3`, `h4`, `h5`, and `h6` elements*][html-h], and
-[*§ 4.4.5 The `ol` element*][html-ol]
-in the HTML spec for more info.
-
-The structure for each generated definition looks as follows:
+Each definition is generated as a `<li>` in the `<ol>`, in the order they were
+first called:
 
 ```html
-<li id="user-content-fn-xxx">
-yyy
-<a href="#user-content-fnref-xxx" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a>
-</li>
+<li id="user-content-fn-1">…</li>
 ```
 
-Where `xxx` is the identifier used in the markdown source and `yyy` the content
-used in the definition.
+Backreferences are injected at the end of the first paragraph, or, when there
+is no paragraph, at the end of the definition.
+When a definition is called multiple times, multiple backreferences are
+generated.
+Further backreferences use an extra counter in the `href` attribute and
+visually in a `<span>` after `↩`.
 
-See [*§ 4.4.8 The `li` element*][html-li],
-[*§ 4.5.1 The `a` element*][html-a], and
-[*§ 3.2.6.6 Embedding custom non-visible data with the `data-*`
-attributes*][html-data]
+```html
+<a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a> <a href="#user-content-fnref-1-2" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩<sup>2</sup></a>
+```
+
+See
+[*§ 4.5.1 The `a` element*][html-a],
+[*§ 4.3.6 The `h1`, `h2`, `h3`, `h4`, `h5`, and `h6` elements*][html-h],
+[*§ 4.4.8 The `li` element*][html-li],
+[*§ 4.4.5 The `ol` element*][html-ol],
+[*§ 4.4.1 The `p` element*][html-p],
+[*§ 4.3.3 The `section` element*][html-section], and
+[*§ 4.5.19 The `sub` and `sup` elements*][html-sup]
 in the HTML spec, and
-[*§ 6.7 `aria-label` property*][aria-label]
+[*§ 6.8 `aria-label` property*][aria-label]
 in WAI-ARIA, for more info.
 
 ## CSS
@@ -299,31 +340,85 @@ For the complete actual CSS see
 Footnotes form with, roughly, the following BNF:
 
 ```bnf
-footnote_reference ::= label_footnote
-; Restriction: any indent is eaten after `:`, indented code is not possible
-footnote_definition ::= label_footnote ':' 0.*space_or_tab 0.*code *( eol *( blank_line eol ) indented_filled_line )
+gfm_footnote_reference ::= gfm_footnote_label
 
-; Restriction: maximum `999` codes allowed inside.
-; Restriction: no blank lines.
-; Restriction: at least 1 non-space and non-eol code must exist.
-label_footnote ::= '[' '^' *( code - '[' - '\\' - ']' | '\\' [ '[' | '\\' | ']' ] ) ']'
-; Restriction: at least one `code` must not be whitespace.
-indented_filled_line ::= 4space_or_tab *code
-blank_line ::= *space_or_tab
-eol ::= '\r' | '\r\n' | '\n'
-space_or_tab ::= ' ' | '\t'
+gfm_footnote_definition_start ::= gfm_footnote_label ':' *space_or_tab
+; Restriction: blank line allowed.
+gfm_footnote_definition_cont ::= 4(space_or_tab)
+
+; Restriction: maximum `999` codes between `^` and `]`.
+gfm_footnote_label ::= '[' '^' 1*(gfm_footnote_label_byte | gfm_footnote_label_escape) ']'
+gfm_footnote_label_byte ::= text - '[' - '\\' - ']'
+gfm_footnote_label_escape ::= '\\' ['[' | '\\' | ']']
+
+; Any byte (u8)
+byte ::= 0x00..=0xFFFF
+space_or_tab ::= '\t' | ' '
+eol ::= '\n' | '\r' | '\r\n'
+line ::= byte - eol
+text ::= line - space_or_tab
 ```
+
+Further lines after `gfm_footnote_definition_start` that are not prefixed with
+`gfm_footnote_definition_cont` cause the footnote definition to be exited,
+except when those lines are lazy continuation or blank.
+Like so many things in markdown, footnote definition too are complex.
+See [*§ Phase 1: block structure* in `CommonMark`][commonmark-block] for more
+on parsing details.
+
+<!--
+  To do: update link when `string` is documented on its own.
+  Also, add links to character escape/reference constructs.
+-->
+
+The identifiers in the `label` parts are interpreted as the
+[string][micromark-content-types] content type.
+That means that character escapes and character references are allowed.
+
+Definitions match to calls through identifiers.
+To match, both labels must be equal after normalizing with
+[`normalizeIdentifier`][micromark-normalize-identifier].
+One definition can match to multiple calls.
+Multiple definitions with the same, normalized, identifier are ignored: the
+first definition is preferred.
+To illustrate, the definition with the content of `x` wins:
+
+```markdown
+[^a]: x
+[^a]: y
+
+[^a]
+```
+
+Importantly, while labels *can* include [string][micromark-content-types]
+content (character escapes and character references), these are not considered
+when matching.
+To illustrate, neither definition matches the call:
+
+```markdown
+[^a&amp;b]: x
+[^a\&b]: y
+
+[^a&b]
+```
+
+Because footnote definitions are containers (like block quotes and list items),
+they can contain more footnote definitions, and they can include calls to
+themselves.
 
 ## Types
 
 This package is fully typed with [TypeScript][].
-It exports the additional type `HtmlOptions`.
+It exports the additional type [`HtmlOptions`][api-html-options].
 
 ## Compatibility
 
-This package is at least compatible with all maintained versions of Node.js.
-As of now, that is Node.js 12.20+, 14.14+, 16.0+, and 18.0+.
-It also works in Deno and modern browsers.
+Projects maintained by the unified collective are compatible with all maintained
+versions of Node.js.
+As of now, that is Node.js 14.14+.
+Our projects sometimes work with older versions, but this is not guaranteed.
+
+These extensions work with `micromark` version 3+.
 
 ## Security
 
@@ -332,12 +427,14 @@ Setting `htmlOptions.clobberPrefix = ''` is dangerous.
 
 ## Related
 
-*   [`syntax-tree/mdast-util-gfm-footnote`][util]
-    — support GFM footnotes in mdast
-*   [`syntax-tree/mdast-util-gfm`][mdast-util-gfm]
-    — support GFM in mdast
-*   [`remarkjs/remark-gfm`][plugin]
-    — support GFM in remark
+*   [`micromark-extension-gfm`][micromark-extension-gfm]
+    — support all of GFM
+*   [`mdast-util-gfm-footnote`][mdast-util-gfm-footnote]
+    — support all of GFM in mdast
+*   [`mdast-util-gfm`][mdast-util-gfm]
+    — support all of GFM in mdast
+*   [`remark-gfm`][remark-gfm]
+    — support all of GFM in remark
 
 ## Contribute
 
@@ -399,21 +496,31 @@ abide by its terms.
 
 [typescript]: https://www.typescriptlang.org
 
-[condition]: https://nodejs.org/api/packages.html#packages_resolving_user_conditions
+[development]: https://nodejs.org/api/packages.html#packages_resolving_user_conditions
 
 [micromark]: https://github.com/micromark/micromark
 
+[micromark-content-types]: https://github.com/micromark/micromark#content-types
+
+[micromark-extension]: https://github.com/micromark/micromark#syntaxextension
+
+[micromark-html-extension]: https://github.com/micromark/micromark#htmlextension
+
+[micromark-normalize-identifier]: https://github.com/micromark/micromark/tree/main/packages/micromark-util-normalize-identifier
+
 [micromark-extension-gfm]: https://github.com/micromark/micromark-extension-gfm
 
-[util]: https://github.com/syntax-tree/mdast-util-gfm-footnote
+[mdast-util-gfm-footnote]: https://github.com/syntax-tree/mdast-util-gfm-footnote
 
 [mdast-util-gfm]: https://github.com/syntax-tree/mdast-util-gfm
 
-[plugin]: https://github.com/remarkjs/remark-gfm
+[remark-gfm]: https://github.com/remarkjs/remark-gfm
 
 [post]: https://github.blog/changelog/2021-09-30-footnotes-now-supported-in-markdown-fields/
 
 [cmark-gfm]: https://github.com/github/cmark-gfm
+
+[commonmark-block]: https://spec.commonmark.org/0.30/#phase-1-block-structure
 
 [html-a]: https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-a-element
 
@@ -425,6 +532,8 @@ abide by its terms.
 
 [html-ol]: https://html.spec.whatwg.org/multipage/grouping-content.html#the-ol-element
 
+[html-p]: https://html.spec.whatwg.org/multipage/grouping-content.html#the-p-element
+
 [html-section]: https://html.spec.whatwg.org/multipage/sections.html#the-section-element
 
 [html-sup]: https://html.spec.whatwg.org/multipage/text-level-semantics.html#the-sub-and-sup-elements
@@ -432,3 +541,9 @@ abide by its terms.
 [aria-describedby]: https://w3c.github.io/aria/#aria-describedby
 
 [aria-label]: https://w3c.github.io/aria/#aria-label
+
+[api-gfm-footnote]: #gfmfootnote
+
+[api-gfm-footnote-html]: #gfmfootnotehtmloptions
+
+[api-html-options]: #htmloptions
