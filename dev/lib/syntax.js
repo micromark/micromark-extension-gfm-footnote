@@ -1,12 +1,12 @@
 /**
+ * @typedef {import('micromark-util-types').Event} Event
+ * @typedef {import('micromark-util-types').Exiter} Exiter
  * @typedef {import('micromark-util-types').Extension} Extension
  * @typedef {import('micromark-util-types').Resolver} Resolver
+ * @typedef {import('micromark-util-types').State} State
  * @typedef {import('micromark-util-types').Token} Token
  * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
  * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
- * @typedef {import('micromark-util-types').Exiter} Exiter
- * @typedef {import('micromark-util-types').State} State
- * @typedef {import('micromark-util-types').Event} Event
  */
 
 import {ok as assert} from 'uvu/assert'
@@ -113,7 +113,7 @@ function tokenizePotentialGfmFootnoteCall(effects, ok, nok) {
 /** @type {Resolver} */
 function resolveToPotentialGfmFootnoteCall(events, context) {
   let index = events.length
-  /** @type {Token|undefined} */
+  /** @type {Token | undefined} */
   let labelStart
 
   // Find an opening.
@@ -298,7 +298,7 @@ function tokenizeDefinitionStart(effects, ok, nok) {
   /** @type {string} */
   let identifier
   let size = 0
-  /** @type {boolean|undefined} */
+  /** @type {boolean | undefined} */
   let data
 
   return start

@@ -1,6 +1,8 @@
 /**
  * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
- *
+ */
+
+/**
  * @typedef Options
  *   Configuration (optional).
  * @property {string} [clobberPrefix='user-content-']
@@ -31,22 +33,26 @@ import {sanitizeUri} from 'micromark-util-sanitize-uri'
 
 const own = {}.hasOwnProperty
 
+/** @type {Options} */
+const defaultOptions = {}
+
 /**
  * Function that can be called to get an HTML extension for micromark (passed
  * in `htmlExtensions`).
  *
- * @param {Options} [options={}]
+ * @param {Options | null | undefined} [options]
  *   Configuration (optional).
  * @returns {HtmlExtension}
  *   HTML extension for micromark (passed in `htmlExtensions`).
  */
-export function gfmFootnoteHtml(options = {}) {
-  const label = options.label || 'Footnotes'
-  const backLabel = options.backLabel || 'Back to content'
+export function gfmFootnoteHtml(options) {
+  const config = options || defaultOptions
+  const label = config.label || 'Footnotes'
+  const backLabel = config.backLabel || 'Back to content'
   const clobberPrefix =
-    options.clobberPrefix === undefined || options.clobberPrefix === null
+    config.clobberPrefix === undefined || config.clobberPrefix === null
       ? 'user-content-'
-      : options.clobberPrefix
+      : config.clobberPrefix
   return {
     enter: {
       gfmFootnoteDefinition() {
