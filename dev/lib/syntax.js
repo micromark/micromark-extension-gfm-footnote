@@ -12,10 +12,7 @@
 import {ok as assert} from 'uvu/assert'
 import {blankLine} from 'micromark-core-commonmark'
 import {factorySpace} from 'micromark-factory-space'
-import {
-  markdownLineEnding,
-  markdownLineEndingOrSpace
-} from 'micromark-util-character'
+import {markdownLineEndingOrSpace} from 'micromark-util-character'
 import {codes} from 'micromark-util-symbol/codes.js'
 import {constants} from 'micromark-util-symbol/constants.js'
 import {normalizeIdentifier} from 'micromark-util-normalize-identifier'
@@ -270,20 +267,21 @@ function tokenizeGfmFootnoteCall(effects, ok, nok) {
    * @type {State}
    */
   function callData(code) {
-    // To do: remove support for line endings.
     if (
+      // Too long.
+      size > constants.linkReferenceSizeMax ||
+      // Closing brace with nothing.
+      (code === codes.rightSquareBracket && !data) ||
+      // Space or tab is not supported by GFM for some reason.
+      // `\n` and `[` not being supported makes sense.
       code === codes.eof ||
       code === codes.leftSquareBracket ||
-      size++ > constants.linkReferenceSizeMax
+      markdownLineEndingOrSpace(code)
     ) {
       return nok(code)
     }
 
     if (code === codes.rightSquareBracket) {
-      if (!data) {
-        return nok(code)
-      }
-
       effects.exit('chunkString')
       const token = effects.exit('gfmFootnoteCallString')
 
@@ -302,6 +300,7 @@ function tokenizeGfmFootnoteCall(effects, ok, nok) {
       data = true
     }
 
+    size++
     effects.consume(code)
     return code === codes.backslash ? callEscape : callData
   }
@@ -384,6 +383,7 @@ function tokenizeDefinitionStart(effects, ok, nok) {
       effects.consume(code)
       effects.exit('gfmFootnoteDefinitionMarker')
       effects.enter('gfmFootnoteDefinitionLabelString')
+      effects.enter('chunkString').contentType = 'string'
       return labelInside
     }
 
@@ -407,18 +407,19 @@ function tokenizeDefinitionStart(effects, ok, nok) {
     if (
       // Too long.
       size > constants.linkReferenceSizeMax ||
+      // Closing brace with nothing.
+      (code === codes.rightSquareBracket && !data) ||
       // Space or tab is not supported by GFM for some reason.
-      // `\n` and `[` make not being supported makes sense.
-      // To do: disallow `[\t\n\r ]` to match GH and `markdown-rs`.
+      // `\n` and `[` not being supported makes sense.
       code === codes.eof ||
       code === codes.leftSquareBracket ||
-      // Closing brace with nothing.
-      (code === codes.rightSquareBracket && !data)
+      markdownLineEndingOrSpace(code)
     ) {
       return nok(code)
     }
 
     if (code === codes.rightSquareBracket) {
+      effects.exit('chunkString')
       const token = effects.exit('gfmFootnoteDefinitionLabelString')
       identifier = normalizeIdentifier(self.sliceSerialize(token))
       effects.enter('gfmFootnoteDefinitionLabelMarker')
@@ -428,42 +429,13 @@ function tokenizeDefinitionStart(effects, ok, nok) {
       return labelAfter
     }
 
-    // To do: remove support for line endings.
-    if (markdownLineEnding(code)) {
-      effects.enter('lineEnding')
-      effects.consume(code)
-      effects.exit('lineEnding')
-      size++
-      return labelInside
-    }
-
-    effects.enter('chunkString').contentType = 'string'
-    return labelText(code)
-  }
-
-  // To do: inline with above when line endings are removed.
-  /**
-   * @type {State}
-   */
-  function labelText(code) {
-    if (
-      code === codes.eof ||
-      markdownLineEnding(code) ||
-      code === codes.leftSquareBracket ||
-      code === codes.rightSquareBracket ||
-      size > constants.linkReferenceSizeMax
-    ) {
-      effects.exit('chunkString')
-      return labelInside(code)
-    }
-
     if (!markdownLineEndingOrSpace(code)) {
       data = true
     }
 
     size++
     effects.consume(code)
-    return code === codes.backslash ? labelEscape : labelText
+    return code === codes.backslash ? labelEscape : labelInside
   }
 
   /**
@@ -487,10 +459,10 @@ function tokenizeDefinitionStart(effects, ok, nok) {
     ) {
       effects.consume(code)
       size++
-      return labelText
+      return labelInside
     }
 
-    return labelText(code)
+    return labelInside(code)
   }
 
   /**
