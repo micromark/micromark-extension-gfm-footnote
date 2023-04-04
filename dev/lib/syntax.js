@@ -24,11 +24,11 @@ import {types} from 'micromark-util-symbol/types.js'
 const indent = {tokenize: tokenizeIndent, partial: true}
 
 /**
- * Function that can be called (no options yet) to get a syntax extension for
- * micromark (passed in `extensions`).
+ * Create an extension for `micromark` to enable GFM footnote syntax.
  *
  * @returns {Extension}
- *   Syntax extension for micromark (passed in `extensions`).
+ *   Extension for `micromark` that can be passed in `extensions` to
+ *   enable GFM footnote syntax.
  */
 export function gfmFootnote() {
   /** @type {Extension} */

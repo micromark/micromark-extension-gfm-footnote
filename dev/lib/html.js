@@ -4,27 +4,46 @@
 
 /**
  * @typedef Options
- *   Configuration (optional).
+ *   Configuration.
  * @property {string} [clobberPrefix='user-content-']
- *   Prefix to use before the `id` attribute to prevent it from *clobbering*.
+ *   Prefix to use before the `id` attribute on footnotes to prevent them from
+ *   *clobbering*.
+ *
+ *   The default is `'user-content-'`.
+ *   Pass `''` for trusted markdown and when you are careful with
+ *   polyfilling.
+ *   You could pass a different prefix.
+ *
  *   DOM clobbering is this:
  *
  *   ```html
- *   <p id=x></p>
- *   <script>console.log(x)</script>
- *   <!-- The element is printed to the console. -->
+ *   <p id="x"></p>
+ *   <script>alert(x) // `x` now refers to the `p#x` DOM element</script>
  *   ```
  *
- *   Elements by their ID are made available in browsers on the `window` object.
- *   Using a prefix prevents this from being a problem.
+ *   The above example shows that elements are made available by browsers, by
+ *   their ID, on the `window` object.
+ *   This is a security risk because you might be expecting some other variable
+ *   at that place.
+ *   It can also break polyfills.
+ *   Using a prefix solves these problems.
  * @property {string} [label='Footnotes']
- *   Label to use for the footnotes section.
- *   Affects screen reader users.
- *   Change it if you’re authoring in a different language.
+ *   Textual label to use for the footnotes section.
+ *
+ *   The default value is `'Footnotes'`.
+ *   Change it when the markdown is not in English.
+ *
+ *   This label is typically hidden visually (assuming a `sr-only` CSS class
+ *   is defined that does that), and thus affects screen readers only.
  * @property {string} [backLabel='Back to content']
- *   Label to use from backreferences back to their footnote call.
- *   Affects screen reader users.
- *   Change it if you’re authoring in a different language.
+ *   Textual label to describe the backreference back to footnote calls.
+ *
+ *   The default value is `'Back to content'`.
+ *   Change it when the markdown is not in English.
+ *
+ *   This label is used in the `aria-label` attribute on each backreference
+ *   (the `↩` links).
+ *   It affects users of assistive technology.
  */
 
 import {ok as assert} from 'uvu/assert'
@@ -34,19 +53,20 @@ import {sanitizeUri} from 'micromark-util-sanitize-uri'
 const own = {}.hasOwnProperty
 
 /** @type {Options} */
-const defaultOptions = {}
+const emptyOptions = {}
 
 /**
- * Function that can be called to get an HTML extension for micromark (passed
- * in `htmlExtensions`).
+ * Create an extension for `micromark` to support GFM footnotes when
+ * serializing to HTML.
  *
  * @param {Options | null | undefined} [options]
- *   Configuration (optional).
+ *   Configuration.
  * @returns {HtmlExtension}
- *   HTML extension for micromark (passed in `htmlExtensions`).
+ *   Extension for `micromark` that can be passed in `htmlExtensions` to
+ *   support GFM footnotes when serializing to HTML.
  */
 export function gfmFootnoteHtml(options) {
-  const config = options || defaultOptions
+  const config = options || emptyOptions
   const label = config.label || 'Footnotes'
   const backLabel = config.backLabel || 'Back to content'
   const clobberPrefix =
