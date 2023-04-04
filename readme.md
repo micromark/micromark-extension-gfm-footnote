@@ -217,6 +217,16 @@ Change it when the markdown is not in English.
 This label is typically hidden visually (assuming a `sr-only` CSS class
 is defined that does that) and thus affects screen readers only.
 
+###### `labelTagName`
+
+HTML tag name to use for the footnote label element (`string`, default:
+`'h2'`).
+
+Change it to match your document structure.
+
+This label is typically hidden visually (assuming a `sr-only` CSS class
+is defined that does that) and so affects screen readers only.
+
 ###### `backLabel`
 
 Textual label to describe the backreference back to footnote calls (`string`,

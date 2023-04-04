@@ -35,6 +35,16 @@
  *
  *   This label is typically hidden visually (assuming a `sr-only` CSS class
  *   is defined that does that), and thus affects screen readers only.
+ * @property {string} [labelTagName='h2']
+ *   HTML tag name to use for the footnote label element.
+ *
+ *   Change it to match your document structure.
+ *
+ *   This label is typically hidden visually (assuming a `sr-only` CSS class
+ *   is defined that does that) and so affects screen readers only.
+ *   If you do have such a class, but want to show this section to everyone,
+ *   pass different attributes with the `gfm_footnote_label_attributes`
+ *   option.
  * @property {string} [backLabel='Back to content']
  *   Textual label to describe the backreference back to footnote calls.
  *
@@ -68,6 +78,7 @@ const emptyOptions = {}
 export function gfmFootnoteHtml(options) {
   const config = options || emptyOptions
   const label = config.label || 'Footnotes'
+  const labelTagName = config.labelTagName || 'h2'
   const backLabel = config.backLabel || 'Back to content'
   const clobberPrefix =
     config.clobberPrefix === undefined || config.clobberPrefix === null
@@ -187,10 +198,12 @@ export function gfmFootnoteHtml(options) {
         if (calls.length > 0) {
           this.lineEndingIfNeeded()
           this.tag(
-            '<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">'
+            '<section data-footnotes="" class="footnotes"><' +
+              labelTagName +
+              ' id="footnote-label" class="sr-only">'
           )
           this.raw(this.encode(label))
-          this.tag('</h2>')
+          this.tag('</' + labelTagName + '>')
           this.lineEndingIfNeeded()
           this.tag('<ol>')
         }

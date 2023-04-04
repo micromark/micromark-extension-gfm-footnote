@@ -53,6 +53,15 @@ test('markdown -> html (micromark)', () => {
   )
 
   assert.deepEqual(
+    micromark('a[^b]\n\n[^b]: c', {
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml({labelTagName: 'h1'})]
+    }),
+    '<p>a<sup><a href="#user-content-fn-b" id="user-content-fnref-b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h1 id="footnote-label" class="sr-only">Footnotes</h1>\n<ol>\n<li id="user-content-fn-b">\n<p>c <a href="#user-content-fnref-b" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    'should support `options.label`, `options.backLabel`'
+  )
+
+  assert.deepEqual(
     micromark('a[^1]\n\n[^1]: b', {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml({clobberPrefix: ''})]
