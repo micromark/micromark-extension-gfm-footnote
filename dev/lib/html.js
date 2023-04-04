@@ -3,6 +3,36 @@
  */
 
 /**
+ * @callback BackLabelTemplate
+ *   Generate a back label dynamically.
+ *
+ *   For the following markdown:
+ *
+ *   ```markdown
+ *   Alpha[^micromark], bravo[^micromark], and charlie[^remark].
+ *
+ *   [^remark]: things about remark
+ *   [^micromark]: things about micromark
+ *   ```
+ *
+ *   This function will be called with:
+ *
+ *   * `0` and `0` for the backreference from `things about micromark` to
+ *      `alpha`, as it is the first used definition, and the first call to it
+ *   * `0` and `1` for the backreference from `things about micromark` to
+ *      `bravo`, as it is the first used definition, and the second call to it
+ *   * `1` and `0` for the backreference from `things about remark` to
+ *      `charlie`, as it is the second used definition
+ * @param {number} referenceIndex
+ *   Index of the definition in the order that they are first referenced,
+ *   0-indexed.
+ * @param {number} rereferenceIndex
+ *   Index of calls to the same definition, 0-indexed.
+ * @returns {string}
+ *   Back label to use when linking back from definitions to their reference.
+ */
+
+/**
  * @typedef Options
  *   Configuration.
  * @property {string} [clobberPrefix='user-content-']
@@ -59,10 +89,21 @@
  *   is defined that does that) and so affects screen readers only.
  *   If you do have such a class, but want to show this section to everyone,
  *   pass different attributes with the `labelAttributes` option.
- * @property {string} [backLabel='Back to content']
- *   Textual label to describe the backreference back to footnote calls.
+ * @property {BackLabelTemplate | string} [backLabel]
+ *   Textual label to describe the backreference back to references.
  *
- *   The default value is `'Back to content'`.
+ *   The default value is:
+ *
+ *   ```js
+ *   function defaultBackLabel(referenceIndex, rereferenceIndex) {
+ *    return (
+ *      'Back to reference ' +
+ *      (referenceIndex + 1) +
+ *      (rereferenceIndex > 1 ? '-' + rereferenceIndex : '')
+ *    )
+ *  }
+ *   ```
+ *
  *   Change it when the markdown is not in English.
  *
  *   This label is used in the `aria-label` attribute on each backreference
@@ -78,6 +119,25 @@ const own = {}.hasOwnProperty
 
 /** @type {Options} */
 const emptyOptions = {}
+
+/**
+ * Generate the default label that GitHub uses on backreferences.
+ *
+ * @param {number} referenceIndex
+ *   Index of the definition in the order that they are first referenced,
+ *   0-indexed.
+ * @param {number} rereferenceIndex
+ *   Index of calls to the same definition, 0-indexed.
+ * @returns {string}
+ *   Default label.
+ */
+export function defaultBackLabel(referenceIndex, rereferenceIndex) {
+  return (
+    'Back to reference ' +
+    (referenceIndex + 1) +
+    (rereferenceIndex > 1 ? '-' + rereferenceIndex : '')
+  )
+}
 
 /**
  * Create an extension for `micromark` to support GFM footnotes when
@@ -97,7 +157,7 @@ export function gfmFootnoteHtml(options) {
     config.labelAttributes === null || config.labelAttributes === undefined
       ? 'class="sr-only"'
       : config.labelAttributes
-  const backLabel = config.backLabel || 'Back to content'
+  const backLabel = config.backLabel || defaultBackLabel
   const clobberPrefix =
     config.clobberPrefix === null || config.clobberPrefix === undefined
       ? 'user-content-'
@@ -243,9 +303,13 @@ export function gfmFootnoteHtml(options) {
                 'fnref-' +
                 safeId +
                 (referenceIndex > 1 ? '-' + referenceIndex : '') +
-                '" data-footnote-backref="" class="data-footnote-backref" aria-label="' +
-                this.encode(backLabel) +
-                '">↩' +
+                '" data-footnote-backref="" aria-label="' +
+                this.encode(
+                  typeof backLabel === 'string'
+                    ? backLabel
+                    : backLabel(index, referenceIndex)
+                ) +
+                '" class="data-footnote-backref">↩' +
                 (referenceIndex > 1
                   ? '<sup>' + referenceIndex + '</sup>'
                   : '') +

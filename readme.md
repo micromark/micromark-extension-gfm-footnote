@@ -17,8 +17,10 @@
 *   [Install](#install)
 *   [Use](#use)
 *   [API](#api)
+    *   [`defaultBackLabel(referenceIndex, rereferenceIndex)`](#defaultbacklabelreferenceindex-rereferenceindex)
     *   [`gfmFootnote()`](#gfmfootnote)
     *   [`gfmFootnoteHtml(options?)`](#gfmfootnotehtmloptions)
+    *   [`BackLabelTemplate`](#backlabeltemplate)
     *   [`HtmlOptions`](#htmloptions)
 *   [Bugs](#bugs)
 *   [Authoring](#authoring)
@@ -147,13 +149,20 @@ console.log(output)
 
 ## API
 
-This package exports the identifiers [`gfmFootnote`][api-gfm-footnote] and
+This package exports the identifiers
+[`defaultBackLabel`][api-default-back-label],
+[`gfmFootnote`][api-gfm-footnote], and
 [`gfmFootnoteHtml`][api-gfm-footnote-html].
 There is no default export.
 
 The export map supports the [`development` condition][development].
 Run `node --conditions development module.js` to get instrumented dev code.
 Without this condition, production code is loaded.
+
+### `defaultBackLabel(referenceIndex, rereferenceIndex)`
+
+Generate the default label that GitHub uses on backreferences
+([`BackLabelTemplate`][api-back-label-template]).
 
 ### `gfmFootnote()`
 
@@ -179,6 +188,41 @@ to HTML.
 Extension for `micromark` that can be passed in `htmlExtensions` to support GFM
 footnotes when serializing to HTML
 ([`HtmlExtension`][micromark-html-extension]).
+
+### `BackLabelTemplate`
+
+Generate a back label dynamically.
+
+For the following markdown:
+
+```markdown
+Alpha[^micromark], bravo[^micromark], and charlie[^remark].
+
+[^remark]: things about remark
+[^micromark]: things about micromark
+```
+
+This function will be called with:
+
+*   `0` and `0` for the backreference from `things about micromark` to
+    `alpha`, as it is the first used definition, and the first call to it
+*   `0` and `1` for the backreference from `things about micromark` to
+    `bravo`, as it is the first used definition, and the second call to it
+*   `1` and `0` for the backreference from `things about remark` to
+    `charlie`, as it is the second used definition
+
+###### Parameters
+
+*   `referenceIndex` (`number`)
+    — index of the definition in the order that they are first referenced,
+    0-indexed
+*   `rereferenceIndex` (`number`)
+    — index of calls to the same definition, 0-indexed
+
+###### Returns
+
+Back label to use when linking back from definitions to their reference
+(`string`).
 
 ### `HtmlOptions`
 
@@ -246,8 +290,9 @@ is defined that does that) and so affects screen readers only.
 
 ###### `backLabel`
 
-Textual label to describe the backreference back to footnote calls (`string`,
-default: `'Back to content'`).
+Textual label to describe the backreference back to footnote calls
+([`BackLabelTemplate`][api-back-label-template] or `string`,
+default: [`defaultBackLabel`][api-default-back-label]).
 
 Change it when the markdown is not in English.
 
@@ -466,7 +511,8 @@ They can even include references to themselves.
 ## Types
 
 This package is fully typed with [TypeScript][].
-It exports the additional type [`HtmlOptions`][api-html-options].
+It exports the additional types [`BackLabelTemplate`][api-back-label-template]
+and [`HtmlOptions`][api-html-options].
 
 ## Compatibility
 
@@ -606,3 +652,7 @@ abide by its terms.
 [api-gfm-footnote-html]: #gfmfootnotehtmloptions
 
 [api-html-options]: #htmloptions
+
+[api-default-back-label]: #defaultbacklabelreferenceindex-rereferenceindex
+
+[api-back-label-template]: #backlabeltemplate

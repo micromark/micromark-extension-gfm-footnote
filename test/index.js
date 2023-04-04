@@ -8,7 +8,7 @@ import {gfmFootnote, gfmFootnoteHtml} from 'micromark-extension-gfm-footnote'
 test('core', async () => {
   assert.deepEqual(
     Object.keys(await import('micromark-extension-gfm-footnote')).sort(),
-    ['gfmFootnote', 'gfmFootnoteHtml'],
+    ['defaultBackLabel', 'gfmFootnote', 'gfmFootnoteHtml'],
     'should expose the public api'
   )
 })
@@ -37,7 +37,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml()]
     }),
-    '<p>A call.<sup><a href="#user-content-fn-a" id="user-content-fnref-a" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a">\n<p>whatevs <a href="#user-content-fnref-a" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p>A call.<sup><a href="#user-content-fn-a" id="user-content-fnref-a" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a">\n<p>whatevs <a href="#user-content-fnref-a" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support calls and definitions'
   )
 
@@ -48,7 +48,7 @@ test('markdown -> html (micromark)', () => {
         gfmFootnoteHtml({label: 'Voetnoten', backLabel: 'Terug naar de inhoud'})
       ]
     }),
-    '<p>Noot.<sup><a href="#user-content-fn-a" id="user-content-fnref-a" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Voetnoten</h2>\n<ol>\n<li id="user-content-fn-a">\n<p>dingen <a href="#user-content-fnref-a" data-footnote-backref="" class="data-footnote-backref" aria-label="Terug naar de inhoud">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p>Noot.<sup><a href="#user-content-fn-a" id="user-content-fnref-a" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Voetnoten</h2>\n<ol>\n<li id="user-content-fn-a">\n<p>dingen <a href="#user-content-fnref-a" data-footnote-backref="" aria-label="Terug naar de inhoud" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support `options.label`, `options.backLabel`'
   )
 
@@ -57,7 +57,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml({labelTagName: 'h1'})]
     }),
-    '<p>a<sup><a href="#user-content-fn-b" id="user-content-fnref-b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h1 id="footnote-label" class="sr-only">Footnotes</h1>\n<ol>\n<li id="user-content-fn-b">\n<p>c <a href="#user-content-fnref-b" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p>a<sup><a href="#user-content-fn-b" id="user-content-fnref-b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h1 id="footnote-label" class="sr-only">Footnotes</h1>\n<ol>\n<li id="user-content-fn-b">\n<p>c <a href="#user-content-fnref-b" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support `options.labelTagName`'
   )
 
@@ -66,7 +66,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml({labelAttributes: ''})]
     }),
-    '<p>a<sup><a href="#user-content-fn-b" id="user-content-fnref-b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label">Footnotes</h2>\n<ol>\n<li id="user-content-fn-b">\n<p>c <a href="#user-content-fnref-b" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p>a<sup><a href="#user-content-fn-b" id="user-content-fnref-b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label">Footnotes</h2>\n<ol>\n<li id="user-content-fn-b">\n<p>c <a href="#user-content-fnref-b" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support `options.labelAttributes`'
   )
 
@@ -75,7 +75,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml({clobberPrefix: ''})]
     }),
-    '<p>a<sup><a href="#fn-1" id="fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="fn-1">\n<p>b <a href="#fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p>a<sup><a href="#fn-1" id="fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="fn-1">\n<p>b <a href="#fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support `options.clobberPrefix`'
   )
 
@@ -95,7 +95,7 @@ test('markdown -> html (micromark)', () => {
       max +
       '">\n<p>y <a href="#user-content-fnref-' +
       max +
-      '" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+      '" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support 999 characters in a call / definition'
   )
 
@@ -114,7 +114,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml()]
     }),
-    '<p>Call.<sup><a href="#user-content-fn-a%5C+b" id="user-content-fnref-a%5C+b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a%5C+b">\n<p>y <a href="#user-content-fnref-a%5C+b" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p>Call.<sup><a href="#user-content-fn-a%5C+b" id="user-content-fnref-a%5C+b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a%5C+b">\n<p>y <a href="#user-content-fnref-a%5C+b" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support a character escape in a call / definition'
   )
 
@@ -123,7 +123,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml()]
     }),
-    '<p>Call.<sup><a href="#user-content-fn-a&amp;copy;b" id="user-content-fnref-a&amp;copy;b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a&amp;copy;b">\n<p>y <a href="#user-content-fnref-a&amp;copy;b" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p>Call.<sup><a href="#user-content-fn-a&amp;copy;b" id="user-content-fnref-a&amp;copy;b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a&amp;copy;b">\n<p>y <a href="#user-content-fnref-a&amp;copy;b" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support a character reference in a call / definition'
   )
 
@@ -134,7 +134,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml()]
     }),
-    '<p>Call.<sup><a href="#user-content-fn-a%5C%5Db" id="user-content-fnref-a%5C%5Db" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a%5C%5Db">\n<p>y <a href="#user-content-fnref-a%5C%5Db" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p>Call.<sup><a href="#user-content-fn-a%5C%5Db" id="user-content-fnref-a%5C%5Db" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a%5C%5Db">\n<p>y <a href="#user-content-fnref-a%5C%5Db" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support a useful character escape in a call / definition'
   )
 
@@ -143,7 +143,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml()]
     }),
-    '<p>Call.<sup><a href="#user-content-fn-a&amp;#91;b" id="user-content-fnref-a&amp;#91;b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a&amp;#91;b">\n<p>y <a href="#user-content-fnref-a&amp;#91;b" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p>Call.<sup><a href="#user-content-fn-a&amp;#91;b" id="user-content-fnref-a&amp;#91;b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a&amp;#91;b">\n<p>y <a href="#user-content-fnref-a&amp;#91;b" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support a useful character reference in a call / definition'
   )
 
@@ -170,7 +170,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml()]
     }),
-    '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a\nb <a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a\nb <a href="#user-content-fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support lazyness (1)'
   )
 
@@ -179,7 +179,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml()]
     }),
-    '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<blockquote>\n</blockquote>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a\nb <a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<blockquote>\n</blockquote>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a\nb <a href="#user-content-fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support lazyness (2)'
   )
 
@@ -188,7 +188,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml()]
     }),
-    '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<blockquote>\n</blockquote>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a\nb <a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
+    '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<blockquote>\n</blockquote>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a\nb <a href="#user-content-fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support lazyness (3)'
   )
 
@@ -197,7 +197,7 @@ test('markdown -> html (micromark)', () => {
       extensions: [gfmFootnote()],
       htmlExtensions: [gfmFootnoteHtml()]
     }),
-    '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a</p>\n<blockquote>\n<p>b</p>\n</blockquote>\n<a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a>\n</li>\n</ol>\n</section>',
+    '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a</p>\n<blockquote>\n<p>b</p>\n</blockquote>\n<a href="#user-content-fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a>\n</li>\n</ol>\n</section>',
     'should support lazyness (4)'
   )
 })
@@ -257,12 +257,12 @@ test('fixtures', async () => {
         )
         // Backward links
         .replace(
-          /<li id="user-content-fn-https:\/\/example\.com">\n<p>a ↩<\/p>\n<\/li>/,
-          '<li id="user-content-fn-https://example.com">\n<p>a <a href="#user-content-fnref-https://example.com" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>'
+          /<li id="user-content-fn-https:\/\/example\.com">\n<p>a ↩<\/p>/,
+          '<li id="user-content-fn-https://example.com">\n<p>a <a href="#user-content-fnref-https://example.com" data-footnote-backref="" aria-label="Back to reference 5" class="data-footnote-backref">↩</a></p>'
         )
         .replace(
-          /<li id="user-content-fn-:\/\/example\.com">\n<p>a ↩<\/p>\n<\/li>/,
-          '<li id="user-content-fn-://example.com">\n<p>a <a href="#user-content-fnref-://example.com" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>'
+          /<li id="user-content-fn-:\/\/example\.com">\n<p>a ↩<\/p>/,
+          '<li id="user-content-fn-://example.com">\n<p>a <a href="#user-content-fnref-://example.com" data-footnote-backref="" aria-label="Back to reference 6" class="data-footnote-backref">↩</a></p>'
         )
 
       // GH doesn’t allow images in what could otherwise be a footnote:
