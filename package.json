@@ -82,11 +82,21 @@
     "rules": {
       "n/file-extension-in-import": "off",
       "unicorn/no-this-assignment": "off"
-    }
+    },
+    "overrides": [
+      {
+        "files": [
+          "test/**/*.js"
+        ],
+        "rules": {
+          "no-await-in-loop": 0
+        }
+      }
+    ]
   },
   "remarkConfig": {
     "plugins": [
-      "preset-wooorm"
+      "remark-preset-wooorm"
     ]
   },
   "typeCoverage": {

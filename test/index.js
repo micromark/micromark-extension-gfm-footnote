@@ -1,6 +1,4 @@
-import {URL} from 'node:url'
-import fs from 'node:fs'
-import path from 'node:path'
+import fs from 'node:fs/promises'
 import test from 'tape'
 import {micromark} from 'micromark'
 import {createGfmFixtures} from 'create-gfm-fixtures'
@@ -186,13 +184,21 @@ test('fixtures', async (t) => {
     rehypeStringify: {closeSelfClosing: true}
   })
 
-  const files = fs.readdirSync(base).filter((d) => /\.md$/.test(d))
+  const files = await fs.readdir(base)
+  const extension = '.md'
+  // .filter((d) => /\.md$/.test(d))
   let index = -1
 
   while (++index < files.length) {
-    const name = path.basename(files[index], '.md')
-    const input = fs.readFileSync(new URL(name + '.md', base))
-    let expected = String(fs.readFileSync(new URL(name + '.html', base)))
+    const d = files[index]
+
+    if (!d.endsWith(extension)) {
+      continue
+    }
+
+    const name = d.slice(0, -extension.length)
+    const input = await fs.readFile(new URL(name + '.md', base))
+    let expected = String(await fs.readFile(new URL(name + '.html', base)))
     let actual = micromark(input, {
       extensions: [syntax()],
       htmlExtensions: [html()]
