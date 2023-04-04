@@ -3,13 +3,21 @@ import fs from 'node:fs/promises'
 import test from 'node:test'
 import {micromark} from 'micromark'
 import {createGfmFixtures} from 'create-gfm-fixtures'
-import {gfmFootnote as syntax, gfmFootnoteHtml as html} from '../dev/index.js'
+import {gfmFootnote, gfmFootnoteHtml} from 'micromark-extension-gfm-footnote'
+
+test('core', async () => {
+  assert.deepEqual(
+    Object.keys(await import('micromark-extension-gfm-footnote')).sort(),
+    ['gfmFootnote', 'gfmFootnoteHtml'],
+    'should expose the public api'
+  )
+})
 
 test('markdown -> html (micromark)', () => {
   assert.deepEqual(
     micromark('^[inline]', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p>^[inline]</p>',
     'should not support inline footnotes'
@@ -17,8 +25,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('A paragraph.\n\n[^a]: whatevs', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p>A paragraph.</p>\n',
     'should ignore definitions w/o calls'
@@ -26,8 +34,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('A call.[^a]\n\n[^a]: whatevs', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p>A call.<sup><a href="#user-content-fn-a" id="user-content-fnref-a" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a">\n<p>whatevs <a href="#user-content-fnref-a" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support calls and definitions'
@@ -35,9 +43,9 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('Noot.[^a]\n\n[^a]: dingen', {
-      extensions: [syntax()],
+      extensions: [gfmFootnote()],
       htmlExtensions: [
-        html({label: 'Voetnoten', backLabel: 'Terug naar de inhoud'})
+        gfmFootnoteHtml({label: 'Voetnoten', backLabel: 'Terug naar de inhoud'})
       ]
     }),
     '<p>Noot.<sup><a href="#user-content-fn-a" id="user-content-fnref-a" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Voetnoten</h2>\n<ol>\n<li id="user-content-fn-a">\n<p>dingen <a href="#user-content-fnref-a" data-footnote-backref="" class="data-footnote-backref" aria-label="Terug naar de inhoud">↩</a></p>\n</li>\n</ol>\n</section>',
@@ -46,8 +54,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('a[^1]\n\n[^1]: b', {
-      extensions: [syntax()],
-      htmlExtensions: [html({clobberPrefix: ''})]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml({clobberPrefix: ''})]
     }),
     '<p>a<sup><a href="#fn-1" id="fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="fn-1">\n<p>b <a href="#fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support `options.clobberPrefix`'
@@ -58,8 +66,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('Call.[^' + max + '].\n\n[^' + max + ']: y', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p>Call.<sup><a href="#user-content-fn-' +
       max +
@@ -75,8 +83,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('Call.[^a' + max + '].\n\n[^a' + max + ']: y', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p>Call.[^a' + max + '].</p>\n<p>[^a' + max + ']: y</p>',
     'should not support 1000 characters in a call / definition'
@@ -85,8 +93,8 @@ test('markdown -> html (micromark)', () => {
   // <https://github.com/github/cmark-gfm/issues/239>
   assert.deepEqual(
     micromark('Call.[^a\\+b].\n\n[^a\\+b]: y', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p>Call.<sup><a href="#user-content-fn-a%5C+b" id="user-content-fnref-a%5C+b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a%5C+b">\n<p>y <a href="#user-content-fnref-a%5C+b" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support a character escape in a call / definition'
@@ -94,8 +102,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('Call.[^a&copy;b].\n\n[^a&copy;b]: y', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p>Call.<sup><a href="#user-content-fn-a&amp;copy;b" id="user-content-fnref-a&amp;copy;b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a&amp;copy;b">\n<p>y <a href="#user-content-fnref-a&amp;copy;b" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support a character reference in a call / definition'
@@ -105,8 +113,8 @@ test('markdown -> html (micromark)', () => {
   // <https://github.com/github/cmark-gfm/issues/240>
   assert.deepEqual(
     micromark('Call.[^a\\]b].\n\n[^a\\]b]: y', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p>Call.<sup><a href="#user-content-fn-a%5C%5Db" id="user-content-fnref-a%5C%5Db" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a%5C%5Db">\n<p>y <a href="#user-content-fnref-a%5C%5Db" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support a useful character escape in a call / definition'
@@ -114,8 +122,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('Call.[^a&#91;b].\n\n[^a&#91;b]: y', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p>Call.<sup><a href="#user-content-fn-a&amp;#91;b" id="user-content-fnref-a&amp;#91;b" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-a&amp;#91;b">\n<p>y <a href="#user-content-fnref-a&amp;#91;b" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support a useful character reference in a call / definition'
@@ -123,8 +131,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('Call.[^a\\+b].\n\n[^a+b]: y', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p>Call.[^a+b].</p>\n',
     'should match calls to definitions on the source of the label, not on resolved escapes'
@@ -132,8 +140,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('Call.[^a&#91;b].\n\n[^a\\[b]: y', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p>Call.[^a[b].</p>\n',
     'should match calls to definitions on the source of the label, not on resolved references'
@@ -141,8 +149,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('[^1].\n\n[^1]: a\nb', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a\nb <a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support lazyness (1)'
@@ -150,8 +158,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('[^1].\n\n> [^1]: a\nb', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<blockquote>\n</blockquote>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a\nb <a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support lazyness (2)'
@@ -159,8 +167,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('[^1].\n\n> [^1]: a\n> b', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<blockquote>\n</blockquote>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a\nb <a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a></p>\n</li>\n</ol>\n</section>',
     'should support lazyness (3)'
@@ -168,8 +176,8 @@ test('markdown -> html (micromark)', () => {
 
   assert.deepEqual(
     micromark('[^1].\n\n[^1]: a\n\n    > b', {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     }),
     '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a</p>\n<blockquote>\n<p>b</p>\n</blockquote>\n<a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a>\n</li>\n</ol>\n</section>',
     'should support lazyness (4)'
@@ -199,8 +207,8 @@ test('fixtures', async () => {
     const input = await fs.readFile(new URL(name + '.md', base))
     let expected = String(await fs.readFile(new URL(name + '.html', base)))
     let actual = micromark(input, {
-      extensions: [syntax()],
-      htmlExtensions: [html()]
+      extensions: [gfmFootnote()],
+      htmlExtensions: [gfmFootnoteHtml()]
     })
 
     if (actual && !/\n$/.test(actual)) {
