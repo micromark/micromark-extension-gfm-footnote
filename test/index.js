@@ -1,11 +1,12 @@
+import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
-import test from 'tape'
+import test from 'node:test'
 import {micromark} from 'micromark'
 import {createGfmFixtures} from 'create-gfm-fixtures'
 import {gfmFootnote as syntax, gfmFootnoteHtml as html} from '../dev/index.js'
 
-test('markdown -> html (micromark)', (t) => {
-  t.deepEqual(
+test('markdown -> html (micromark)', () => {
+  assert.deepEqual(
     micromark('^[inline]', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -14,7 +15,7 @@ test('markdown -> html (micromark)', (t) => {
     'should not support inline footnotes'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('A paragraph.\n\n[^a]: whatevs', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -23,7 +24,7 @@ test('markdown -> html (micromark)', (t) => {
     'should ignore definitions w/o calls'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('A call.[^a]\n\n[^a]: whatevs', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -32,7 +33,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support calls and definitions'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('Noot.[^a]\n\n[^a]: dingen', {
       extensions: [syntax()],
       htmlExtensions: [
@@ -43,7 +44,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support `options.label`, `options.backLabel`'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('a[^1]\n\n[^1]: b', {
       extensions: [syntax()],
       htmlExtensions: [html({clobberPrefix: ''})]
@@ -55,7 +56,7 @@ test('markdown -> html (micromark)', (t) => {
   // 999 `x` characters.
   const max = Array.from({length: 1000}).join('x')
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('Call.[^' + max + '].\n\n[^' + max + ']: y', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -72,7 +73,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support 999 characters in a call / definition'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('Call.[^a' + max + '].\n\n[^a' + max + ']: y', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -82,7 +83,7 @@ test('markdown -> html (micromark)', (t) => {
   )
 
   // <https://github.com/github/cmark-gfm/issues/239>
-  t.deepEqual(
+  assert.deepEqual(
     micromark('Call.[^a\\+b].\n\n[^a\\+b]: y', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -91,7 +92,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support a character escape in a call / definition'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('Call.[^a&copy;b].\n\n[^a&copy;b]: y', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -102,7 +103,7 @@ test('markdown -> html (micromark)', (t) => {
 
   // <https://github.com/github/cmark-gfm/issues/239>
   // <https://github.com/github/cmark-gfm/issues/240>
-  t.deepEqual(
+  assert.deepEqual(
     micromark('Call.[^a\\]b].\n\n[^a\\]b]: y', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -111,7 +112,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support a useful character escape in a call / definition'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('Call.[^a&#91;b].\n\n[^a&#91;b]: y', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -120,7 +121,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support a useful character reference in a call / definition'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('Call.[^a\\+b].\n\n[^a+b]: y', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -129,7 +130,7 @@ test('markdown -> html (micromark)', (t) => {
     'should match calls to definitions on the source of the label, not on resolved escapes'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('Call.[^a&#91;b].\n\n[^a\\[b]: y', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -138,7 +139,7 @@ test('markdown -> html (micromark)', (t) => {
     'should match calls to definitions on the source of the label, not on resolved references'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('[^1].\n\n[^1]: a\nb', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -147,7 +148,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support lazyness (1)'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('[^1].\n\n> [^1]: a\nb', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -156,7 +157,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support lazyness (2)'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('[^1].\n\n> [^1]: a\n> b', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -165,7 +166,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support lazyness (3)'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     micromark('[^1].\n\n[^1]: a\n\n    > b', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -173,11 +174,9 @@ test('markdown -> html (micromark)', (t) => {
     '<p><sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>.</p>\n<section data-footnotes="" class="footnotes"><h2 id="footnote-label" class="sr-only">Footnotes</h2>\n<ol>\n<li id="user-content-fn-1">\n<p>a</p>\n<blockquote>\n<p>b</p>\n</blockquote>\n<a href="#user-content-fnref-1" data-footnote-backref="" class="data-footnote-backref" aria-label="Back to content">↩</a>\n</li>\n</ol>\n</section>',
     'should support lazyness (4)'
   )
-
-  t.end()
 })
 
-test('fixtures', async (t) => {
+test('fixtures', async () => {
   const base = new URL('fixtures/', import.meta.url)
 
   await createGfmFixtures(base, {
@@ -259,8 +258,6 @@ test('fixtures', async (t) => {
       )
     }
 
-    t.equal(actual, expected, name)
+    assert.equal(actual, expected, name)
   }
-
-  t.end()
 })
