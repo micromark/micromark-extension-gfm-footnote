@@ -528,11 +528,6 @@ function tokenizeDefinitionContinuation(effects, ok, nok) {
   /// ```
   //
   // Either a blank line, which is okay, or an indented thing.
-  //
-  // To do: check blank lines in fenced code for example, if there are blank
-  // lines with a bunch of spaces, only a part of them should be “eaten” as
-  // the indent.
-  // That’s what `markdown-rs` does.
   return effects.check(blankLine, ok, effects.attempt(indent, ok, nok))
 }
 

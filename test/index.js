@@ -225,7 +225,8 @@ test('fixtures', async () => {
     let expected = String(await fs.readFile(new URL(name + '.html', base)))
     let actual = micromark(input, {
       extensions: [gfmFootnote()],
-      htmlExtensions: [gfmFootnoteHtml()]
+      htmlExtensions: [gfmFootnoteHtml()],
+      allowDangerousHtml: true
     })
 
     if (actual && !/\n$/.test(actual)) {
@@ -240,6 +241,18 @@ test('fixtures', async () => {
     // See: <https://github.com/github/cmark-gfm/issues/239>
     if (name === 'calls') {
       expected = expected.replace(/%5e/g, '%5E')
+    }
+
+    if (
+      name === 'constructs-in-footnotes-first' ||
+      name === 'constructs-in-footnotes-after-blank' ||
+      name === 'constructs-in-footnotes-rest'
+    ) {
+      // GH uses weird code.
+      expected = expected.replace(
+        /<pre lang="js"><code>/,
+        '<pre><code class="language-js">'
+      )
     }
 
     if (name === 'constructs-in-identifiers') {
