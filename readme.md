@@ -191,7 +191,7 @@ footnotes when serializing to HTML
 
 ### `BackLabelTemplate`
 
-Generate a back label dynamically.
+Generate a back label dynamically (TypeScript type).
 
 For the following markdown:
 
