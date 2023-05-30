@@ -165,7 +165,7 @@ export function gfmFootnoteHtml(options) {
   return {
     enter: {
       gfmFootnoteDefinition() {
-        const stack = /** @type {Array<boolean>} */ (this.getData('tightStack'))
+        const stack = this.getData('tightStack')
         stack.push(false)
       },
       gfmFootnoteDefinitionLabelString() {
@@ -177,15 +177,10 @@ export function gfmFootnoteHtml(options) {
     },
     exit: {
       gfmFootnoteDefinition() {
-        let definitions = /** @type {Record<string, string>} */ (
-          this.getData('gfmFootnoteDefinitions')
-        )
-        const footnoteStack = /** @type {Array<string>} */ (
-          this.getData('gfmFootnoteDefinitionStack')
-        )
-        const tightStack = /** @type {Array<boolean>} */ (
-          this.getData('tightStack')
-        )
+        let definitions = this.getData('gfmFootnoteDefinitions')
+        const footnoteStack = this.getData('gfmFootnoteDefinitionStack')
+        assert(footnoteStack, 'expected `footnoteStack`')
+        const tightStack = this.getData('tightStack')
         const current = footnoteStack.pop()
         const value = this.resume()
 
@@ -217,12 +212,8 @@ export function gfmFootnoteHtml(options) {
         this.buffer() // Get ready for a value.
       },
       gfmFootnoteCallString(token) {
-        let calls = /** @type {Array<string>|undefined} */ (
-          this.getData('gfmFootnoteCallOrder')
-        )
-        let counts = /** @type {Record<string, number>|undefined} */ (
-          this.getData('gfmFootnoteCallCounts')
-        )
+        let calls = this.getData('gfmFootnoteCallOrder')
+        let counts = this.getData('gfmFootnoteCallCounts')
         const id = normalizeIdentifier(this.sliceSerialize(token))
         /** @type {number} */
         let counter

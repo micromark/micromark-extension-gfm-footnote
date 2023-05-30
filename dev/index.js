@@ -1,7 +1,3 @@
-/**
- * @typedef {import('./lib/html.js').BackLabelTemplate} BackLabelTemplate
- * @typedef {import('./lib/html.js').Options} HtmlOptions
- */
-
+// Note: types are exported from `dev/index.d.ts`.
 export {gfmFootnote} from './lib/syntax.js'
 export {gfmFootnoteHtml, defaultBackLabel} from './lib/html.js'

@@ -141,12 +141,14 @@ function resolveToPotentialGfmFootnoteCall(events, context) {
   events[index + 3][1].type = 'gfmFootnoteCallLabelMarker'
 
   // The whole (without `!`):
+  /** @type {Token} */
   const call = {
     type: 'gfmFootnoteCall',
     start: Object.assign({}, events[index + 3][1].start),
     end: Object.assign({}, events[events.length - 1][1].end)
   }
   // The `^` marker
+  /** @type {Token} */
   const marker = {
     type: 'gfmFootnoteCallMarker',
     start: Object.assign({}, events[index + 3][1].end),
@@ -156,11 +158,13 @@ function resolveToPotentialGfmFootnoteCall(events, context) {
   marker.end.column++
   marker.end.offset++
   marker.end._bufferIndex++
+  /** @type {Token} */
   const string = {
     type: 'gfmFootnoteCallString',
     start: Object.assign({}, marker.end),
     end: Object.assign({}, events[events.length - 1][1].start)
   }
+  /** @type {Token} */
   const chunk = {
     type: types.chunkString,
     contentType: 'string',
