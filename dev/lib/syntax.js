@@ -9,7 +9,7 @@
  * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
  */
 
-import {ok as assert} from 'uvu/assert'
+import {ok as assert} from 'devlop'
 import {blankLine} from 'micromark-core-commonmark'
 import {factorySpace} from 'micromark-factory-space'
 import {markdownLineEndingOrSpace} from 'micromark-util-character'

@@ -38,14 +38,14 @@
     "default": "./index.js"
   },
   "dependencies": {
+    "devlop": "^1.0.0",
     "micromark-core-commonmark": "^1.0.0",
     "micromark-factory-space": "^1.0.0",
     "micromark-util-character": "^1.0.0",
     "micromark-util-normalize-identifier": "^1.0.0",
     "micromark-util-sanitize-uri": "^1.0.0",
     "micromark-util-symbol": "^1.0.0",
-    "micromark-util-types": "^1.0.0",
-    "uvu": "^0.5.0"
+    "micromark-util-types": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

@@ -110,7 +110,7 @@
  *   It affects users of assistive technology.
  */
 
-import {ok as assert} from 'uvu/assert'
+import {ok as assert} from 'devlop'
 import {normalizeIdentifier} from 'micromark-util-normalize-identifier'
 import {sanitizeUri} from 'micromark-util-sanitize-uri'
 
