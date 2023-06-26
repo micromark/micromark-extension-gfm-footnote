@@ -13,10 +13,8 @@ import {ok as assert} from 'devlop'
 import {blankLine} from 'micromark-core-commonmark'
 import {factorySpace} from 'micromark-factory-space'
 import {markdownLineEndingOrSpace} from 'micromark-util-character'
-import {codes} from 'micromark-util-symbol/codes.js'
-import {constants} from 'micromark-util-symbol/constants.js'
 import {normalizeIdentifier} from 'micromark-util-normalize-identifier'
-import {types} from 'micromark-util-symbol/types.js'
+import {codes, constants, types} from 'micromark-util-symbol'
 
 const indent = {tokenize: tokenizeIndent, partial: true}
 
