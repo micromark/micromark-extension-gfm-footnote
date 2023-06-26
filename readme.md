@@ -77,14 +77,14 @@ npm install micromark-extension-gfm-footnote
 In Deno with [`esm.sh`][esmsh]:
 
 ```js
-import {gfmFootnote, gfmFootnoteHtml} from 'https://esm.sh/micromark-extension-gfm-footnote@1'
+import {gfmFootnote, gfmFootnoteHtml} from 'https://esm.sh/micromark-extension-gfm-footnote@2'
 ```
 
 In browsers with [`esm.sh`][esmsh]:
 
 ```html
 <script type="module">
-  import {gfmFootnote, gfmFootnoteHtml} from 'https://esm.sh/micromark-extension-gfm-footnote@1?bundle'
+  import {gfmFootnote, gfmFootnoteHtml} from 'https://esm.sh/micromark-extension-gfm-footnote@2?bundle'
 </script>
 ```
 
