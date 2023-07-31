@@ -413,6 +413,7 @@ For the complete actual CSS see
   font-size: smaller;
   color: #8b949e;
   border-top: 1px solid #30363d;
+  word-wrap: break-word;
 }
 
 /* Hide the section label for visual users. */
