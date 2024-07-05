@@ -36,14 +36,19 @@ export function gfmFootnote() {
   return {
     document: {
       [codes.leftSquareBracket]: {
+        name: 'footnoteDefinition',
         tokenize: tokenizeDefinitionStart,
         continuation: {tokenize: tokenizeDefinitionContinuation},
         exit: gfmFootnoteDefinitionEnd
       }
     },
     text: {
-      [codes.leftSquareBracket]: {tokenize: tokenizeGfmFootnoteCall},
+      [codes.leftSquareBracket]: {
+        name: 'footnoteCall',
+        tokenize: tokenizeGfmFootnoteCall
+      },
       [codes.rightSquareBracket]: {
+        name: 'potentialFootnoteCall',
         add: 'after',
         tokenize: tokenizePotentialGfmFootnoteCall,
         resolveTo: resolveToPotentialGfmFootnoteCall
