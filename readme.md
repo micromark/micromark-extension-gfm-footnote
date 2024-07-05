@@ -12,27 +12,27 @@
 
 ## Contents
 
-*   [What is this?](#what-is-this)
-*   [When to use this](#when-to-use-this)
-*   [Install](#install)
-*   [Use](#use)
-*   [API](#api)
-    *   [`defaultBackLabel(referenceIndex, rereferenceIndex)`](#defaultbacklabelreferenceindex-rereferenceindex)
-    *   [`gfmFootnote()`](#gfmfootnote)
-    *   [`gfmFootnoteHtml(options?)`](#gfmfootnotehtmloptions)
-    *   [`BackLabelTemplate`](#backlabeltemplate)
-    *   [`HtmlOptions`](#htmloptions)
-*   [Bugs](#bugs)
-*   [Authoring](#authoring)
-*   [HTML](#html)
-*   [CSS](#css)
-*   [Syntax](#syntax)
-*   [Types](#types)
-*   [Compatibility](#compatibility)
-*   [Security](#security)
-*   [Related](#related)
-*   [Contribute](#contribute)
-*   [License](#license)
+* [What is this?](#what-is-this)
+* [When to use this](#when-to-use-this)
+* [Install](#install)
+* [Use](#use)
+* [API](#api)
+  * [`defaultBackLabel(referenceIndex, rereferenceIndex)`](#defaultbacklabelreferenceindex-rereferenceindex)
+  * [`gfmFootnote()`](#gfmfootnote)
+  * [`gfmFootnoteHtml(options?)`](#gfmfootnotehtmloptions)
+  * [`BackLabelTemplate`](#backlabeltemplate)
+  * [`HtmlOptions`](#htmloptions)
+* [Bugs](#bugs)
+* [Authoring](#authoring)
+* [HTML](#html)
+* [CSS](#css)
+* [Syntax](#syntax)
+* [Types](#types)
+* [Compatibility](#compatibility)
+* [Security](#security)
+* [Related](#related)
+* [Contribute](#contribute)
+* [License](#license)
 
 ## What is this?
 
@@ -180,8 +180,8 @@ to HTML.
 
 ###### Parameters
 
-*   `options` ([`HtmlOptions`][api-html-options], optional)
-    — configuration
+* `options` ([`HtmlOptions`][api-html-options], optional)
+  — configuration
 
 ###### Returns
 
@@ -204,20 +204,20 @@ Alpha[^micromark], bravo[^micromark], and charlie[^remark].
 
 This function will be called with:
 
-*   `0` and `0` for the backreference from `things about micromark` to
-    `alpha`, as it is the first used definition, and the first call to it
-*   `0` and `1` for the backreference from `things about micromark` to
-    `bravo`, as it is the first used definition, and the second call to it
-*   `1` and `0` for the backreference from `things about remark` to
-    `charlie`, as it is the second used definition
+* `0` and `0` for the backreference from `things about micromark` to
+  `alpha`, as it is the first used definition, and the first call to it
+* `0` and `1` for the backreference from `things about micromark` to
+  `bravo`, as it is the first used definition, and the second call to it
+* `1` and `0` for the backreference from `things about remark` to
+  `charlie`, as it is the second used definition
 
 ###### Parameters
 
-*   `referenceIndex` (`number`)
-    — index of the definition in the order that they are first referenced,
-    0-indexed
-*   `rereferenceIndex` (`number`)
-    — index of calls to the same definition, 0-indexed
+* `referenceIndex` (`number`)
+  — index of the definition in the order that they are first referenced,
+  0-indexed
+* `rereferenceIndex` (`number`)
+  — index of calls to the same definition, 0-indexed
 
 ###### Returns
 
@@ -306,29 +306,29 @@ GitHub’s own algorithm to parse footnote definitions contains several bugs.
 These are not present in this project.
 The issues relating to footnote definitions are:
 
-*   [Footnote reference call identifiers are trimmed, but definition
-    identifiers aren’t](https://github.com/github/cmark-gfm/issues/237)\
-    — initial and final whitespace in labels causes them not to match
-*   [Footnotes are matched case-insensitive, but links keep their casing,
-    breaking them](https://github.com/github/cmark-gfm/issues/239)\
-    — using uppercase (or any character that will be percent encoded) in
-    identifiers breaks links
-*   [Colons in footnotes generate links w/o
-    `href`](https://github.com/github/cmark-gfm/issues/250)\
-    — colons in identifiers generate broken links
-*   [Character escape of `]` does not work in footnote
-    identifiers](https://github.com/github/cmark-gfm/issues/240)\
-    — some character escapes don’t work
-*   [Footnotes in links are
-    broken](https://github.com/github/cmark-gfm/issues/249)\
-    — while `CommonMark` prevents links in links, GitHub does not prevent
-    footnotes (which turn into links) in links
-*   [Footnote-like brackets around image, break that
-    image](https://github.com/github/cmark-gfm/issues/275)\
-    — images can’t be used in what looks like a footnote call
-*   [GFM footnotes: line ending in footnote definition label causes text to
-    disappear](https://github.com/github/cmark-gfm/issues/282)\
-    — line endings in footnote definitions cause text to disappear
+* [Footnote reference call identifiers are trimmed, but definition
+  identifiers aren’t](https://github.com/github/cmark-gfm/issues/237)\
+  — initial and final whitespace in labels causes them not to match
+* [Footnotes are matched case-insensitive, but links keep their casing,
+  breaking them](https://github.com/github/cmark-gfm/issues/239)\
+  — using uppercase (or any character that will be percent encoded) in
+  identifiers breaks links
+* [Colons in footnotes generate links w/o
+  `href`](https://github.com/github/cmark-gfm/issues/250)\
+  — colons in identifiers generate broken links
+* [Character escape of `]` does not work in footnote
+  identifiers](https://github.com/github/cmark-gfm/issues/240)\
+  — some character escapes don’t work
+* [Footnotes in links are
+  broken](https://github.com/github/cmark-gfm/issues/249)\
+  — while `CommonMark` prevents links in links, GitHub does not prevent
+  footnotes (which turn into links) in links
+* [Footnote-like brackets around image, break that
+  image](https://github.com/github/cmark-gfm/issues/275)\
+  — images can’t be used in what looks like a footnote call
+* [GFM footnotes: line ending in footnote definition label causes text to
+  disappear](https://github.com/github/cmark-gfm/issues/282)\
+  — line endings in footnote definitions cause text to disappear
 
 ## Authoring
 
@@ -530,14 +530,14 @@ content, they allow defining arbitrary HTML.
 
 ## Related
 
-*   [`micromark-extension-gfm`][micromark-extension-gfm]
-    — support all of GFM
-*   [`mdast-util-gfm-footnote`][mdast-util-gfm-footnote]
-    — support all of GFM in mdast
-*   [`mdast-util-gfm`][mdast-util-gfm]
-    — support all of GFM in mdast
-*   [`remark-gfm`][remark-gfm]
-    — support all of GFM in remark
+* [`micromark-extension-gfm`][micromark-extension-gfm]
+  — support all of GFM
+* [`mdast-util-gfm-footnote`][mdast-util-gfm-footnote]
+  — support all of GFM in mdast
+* [`mdast-util-gfm`][mdast-util-gfm]
+  — support all of GFM in mdast
+* [`remark-gfm`][remark-gfm]
+  — support all of GFM in remark
 
 ## Contribute
 
