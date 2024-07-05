@@ -47,7 +47,7 @@ test('micromark-extension-gfm-footnote', async function (t) {
   })
 
   await t.test(
-    'should skip calls and definitions  construct if `disable.null` includes `footnoteDefinition` and `footnoteCall`',
+    'should skip calls and definitions construct if `disable.null` includes `footnoteDefinition` and `footnoteCall`',
     async function () {
       assert.deepEqual(
         micromark('A call.[^a]\n\n[^a]: whatevs', {
@@ -56,9 +56,9 @@ test('micromark-extension-gfm-footnote', async function (t) {
             {
               disable: {
                 null: [
-                  'footnoteDefinition',
-                  'footnoteCall',
-                  'potentialFootnoteCall'
+                  'gfmFootnoteDefinition',
+                  'gfmFootnoteCall',
+                  'gfmPotentialFootnoteCall'
                 ]
               }
             }

@@ -1,12 +1,5 @@
 /**
- * @typedef {import('micromark-util-types').Event} Event
- * @typedef {import('micromark-util-types').Exiter} Exiter
- * @typedef {import('micromark-util-types').Extension} Extension
- * @typedef {import('micromark-util-types').Resolver} Resolver
- * @typedef {import('micromark-util-types').State} State
- * @typedef {import('micromark-util-types').Token} Token
- * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
- * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
+ * @import {Event, Exiter, Extension, Resolver, State, Token, TokenizeContext, Tokenizer} from 'micromark-util-types'
  */
 
 import {ok as assert} from 'devlop'
@@ -36,7 +29,7 @@ export function gfmFootnote() {
   return {
     document: {
       [codes.leftSquareBracket]: {
-        name: 'footnoteDefinition',
+        name: 'gfmFootnoteDefinition',
         tokenize: tokenizeDefinitionStart,
         continuation: {tokenize: tokenizeDefinitionContinuation},
         exit: gfmFootnoteDefinitionEnd
@@ -44,11 +37,11 @@ export function gfmFootnote() {
     },
     text: {
       [codes.leftSquareBracket]: {
-        name: 'footnoteCall',
+        name: 'gfmFootnoteCall',
         tokenize: tokenizeGfmFootnoteCall
       },
       [codes.rightSquareBracket]: {
-        name: 'potentialFootnoteCall',
+        name: 'gfmPotentialFootnoteCall',
         add: 'after',
         tokenize: tokenizePotentialGfmFootnoteCall,
         resolveTo: resolveToPotentialGfmFootnoteCall
