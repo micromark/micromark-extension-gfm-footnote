@@ -441,24 +441,24 @@ For the complete actual CSS see
 
 Footnotes form with, roughly, the following BNF:
 
-```bnf
-gfm_footnote_reference ::= gfm_footnote_label
+```abnf
+gfmFootnoteReference = gfmFootnoteLabel
 
-gfm_footnote_definition_start ::= gfm_footnote_label ':' *space_or_tab
+gfmFootnoteDefinitionStart = gfmFootnoteLabel ":" *spaceOrTab
 ; Restriction: blank line allowed.
-gfm_footnote_definition_cont ::= 4(space_or_tab)
+gfmFootnoteDefinitionCont = 4(spaceOrTab)
 
 ; Restriction: maximum `999` codes between `^` and `]`.
-gfm_footnote_label ::= '[' '^' 1*(gfm_footnote_label_byte | gfm_footnote_label_escape) ']'
-gfm_footnote_label_byte ::= text - '[' - '\\' - ']'
-gfm_footnote_label_escape ::= '\\' ['[' | '\\' | ']']
+gfmFootnoteLabel = "[" "^" 1*(gfmFootnoteLabelByte / gfmFootnoteLabelEscape) "]"
+gfmFootnoteLabelByte = text - "[" - "\\" - "]"
+gfmFootnoteLabelEscape = "\\" ["[" / "\\" / "]"]
 
 ; Any byte (u8)
-byte ::= 0x00..=0xFFFF
-space_or_tab ::= '\t' | ' '
-eol ::= '\n' | '\r' | '\r\n'
-line ::= byte - eol
-text ::= line - space_or_tab
+byte = %x0000-FFFF
+spaceOrTab = "\t" / " "
+eol = "\n" / "\r" / "\r\n"
+line = byte - eol
+text = line - spaceOrTab
 ```
 
 Further lines after `gfm_footnote_definition_start` that are not prefixed with
