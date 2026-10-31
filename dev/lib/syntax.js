@@ -57,31 +57,12 @@ export function gfmFootnote() {
  */
 function tokenizePotentialGfmFootnoteCall(effects, ok, nok) {
   const self = this
-  let index = self.events.length
   const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = [])
-  /** @type {Token} */
-  let labelStart
-
-  // Find an opening.
-  while (index--) {
-    const token = self.events[index][1]
-
-    if (token.type === types.labelImage) {
-      labelStart = token
-      break
-    }
-
-    // Exit if we’ve walked far enough.
-    if (
-      token.type === 'gfmFootnoteCall' ||
-      token.type === types.labelLink ||
-      token.type === types.label ||
-      token.type === types.image ||
-      token.type === types.link
-    ) {
-      break
-    }
-  }
+  const labelStarts = self._labelStarts
+  // This construct runs after `labelEnd` from core, which discards closed
+  // label starts, so the last one is the opening it tried.
+  // It’s marked as balanced if `labelEnd` ran and found nothing.
+  const labelStart = labelStarts && labelStarts[labelStarts.length - 1]
 
   return start
 
@@ -91,7 +72,11 @@ function tokenizePotentialGfmFootnoteCall(effects, ok, nok) {
   function start(code) {
     assert(code === codes.rightSquareBracket, 'expected `]`')
 
-    if (!labelStart || !labelStart._balanced) {
+    if (
+      !labelStart ||
+      labelStart.type !== types.labelImage ||
+      !labelStart._balanced
+    ) {
       return nok(code)
     }
 
